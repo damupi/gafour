@@ -21,8 +21,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/damupi/ga4-cli"
-Repository = "https://github.com/damupi/ga4-cli"
+Homepage = "https://github.com/damupi/ga4x"
+Repository = "https://github.com/damupi/ga4x"
 "Inspired by" = "https://github.com/sulimanbenhalim/ga-cli"
 
 [project.scripts]

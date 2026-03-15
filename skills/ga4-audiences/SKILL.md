@@ -13,8 +13,8 @@ metadata:
 # ga4 audiences
 
 > **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
+> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
 ga4x audiences <command> <property-id> [flags]
