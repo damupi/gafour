@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
 from ga4.models.custom_metric import CustomMetric, MeasurementUnit, MetricScope
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_list
 
 custom_metrics_app = typer.Typer(name="custom-metrics", help="Manage GA4 custom metrics.")
 
@@ -71,9 +71,10 @@ def custom_metrics_list(
                 )
             )
 
-        rows = [_custom_metric_to_dict(m) for m in metrics]
-        columns = ["Parameter Name", "Display Name", "Scope", "Unit"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(metrics)
+        else:
+            result = render([_custom_metric_to_dict(m) for m in metrics], format, ["Parameter Name", "Display Name", "Scope", "Unit"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

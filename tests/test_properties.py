@@ -109,8 +109,8 @@ class TestPropertiesList:
 
         assert result.exit_code == 0
         parsed = json.loads(result.output)
-        assert parsed[0]["Property ID"] == "101"
-        assert parsed[0]["Name"] == "JSON Property"
+        assert parsed[0]["name"] == "properties/101"
+        assert parsed[0]["display_name"] == "JSON Property"
 
 
 class TestPropertiesGet:
