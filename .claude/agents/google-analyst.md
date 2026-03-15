@@ -18,7 +18,7 @@ If authentication fails, instruct the user to install from source and set up cre
 
 ```bash
 # Install from source
-git clone https://github.com/damupi/ga4-cli.git
+git clone https://github.com/damupi/ga4x.git
 cd ga4-cli
 uv sync
 source .venv/bin/activate   # or prefix commands with: uv run
@@ -31,7 +31,7 @@ ga4x config set key_file /path/to/service-account-key.json
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
 ```
 
-Full setup instructions: https://github.com/damupi/ga4-cli#installation
+Full setup instructions: https://github.com/damupi/ga4x#installation
 
 ## Core tools
 

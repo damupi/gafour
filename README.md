@@ -44,7 +44,7 @@ uv tool install ga4-cli
 ### From source
 
 ```bash
-git clone https://github.com/damupi/ga4-cli.git
+git clone https://github.com/damupi/ga4x.git
 cd ga4-cli
 pip install -e .
 ```
@@ -52,7 +52,7 @@ pip install -e .
 Or with `uv`:
 
 ```bash
-git clone https://github.com/damupi/ga4-cli.git
+git clone https://github.com/damupi/ga4x.git
 cd ga4-cli
 uv sync
 uv run ga4x --help
