@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 metadata --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x metadata --help"
 ---
 
 # ga4 metadata
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 metadata <command> [flags]
+ga4x metadata <command> [flags]
 ```
 
 ## Commands
@@ -108,22 +108,22 @@ ga4 metadata <command> [flags]
 
 ```bash
 # List all dimensions for a property
-ga4 metadata dimensions --property-id 123456789
+ga4x metadata dimensions --property-id 123456789
 
 # Search for device-related dimensions
-ga4 metadata dimensions --property-id 123456789 --search device
+ga4x metadata dimensions --property-id 123456789 --search device
 
 # Find revenue metrics
-ga4 metadata metrics --property-id 123456789 --search revenue
+ga4x metadata metrics --property-id 123456789 --search revenue
 
 # Check if date + country + sessions + activeUsers can be queried together
-ga4 metadata compatibility \
+ga4x metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics sessions,activeUsers
 
 # Show only incompatible combinations
-ga4 metadata compatibility \
+ga4x metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics sessions,activeUsers \

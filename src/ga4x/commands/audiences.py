@@ -6,11 +6,11 @@ from typing import Annotated, Optional
 import typer
 from google.api_core import exceptions as google_exceptions  # type: ignore[import-untyped]
 
-from ga4.auth import build_admin_client
-from ga4.config import load_config
-from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from ga4.models.audience import Audience
-from ga4.output import OutputFormat, print_error, render, render_json_item, render_json_list
+from ga4x.auth import build_admin_client
+from ga4x.config import load_config
+from ga4x.errors import AuthError, GA4CLIError, NetworkError, ValidationError
+from ga4x.models.audience import Audience
+from ga4x.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 audiences_app = typer.Typer(name="audiences", help="Manage GA4 audiences.")
 
@@ -78,7 +78,7 @@ def audiences_list(
         print_error(err)
         raise typer.Exit(err.exit_code)
     except google_exceptions.NotFound as exc:
-        from ga4.errors import PropertyNotFoundError
+        from ga4x.errors import PropertyNotFoundError
 
         err = PropertyNotFoundError(property_id=property_id)
         print_error(err)

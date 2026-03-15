@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import re
 
-from ga4.models.report import (
+from ga4x.models.report import (
     FilterExpression,
     FilterField,
     NumericFilter,

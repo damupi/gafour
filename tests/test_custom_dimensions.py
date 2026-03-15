@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from ga4.cli import app
+from ga4x.cli import app
 
 
 def _make_custom_dimension(
@@ -45,9 +45,9 @@ class TestCustomDimensionsList:
         ]
 
         with (
-            patch("ga4.commands.custom_dimensions.load_config") as mock_cfg,
+            patch("ga4x.commands.custom_dimensions.load_config") as mock_cfg,
             patch(
-                "ga4.commands.custom_dimensions.build_admin_client",
+                "ga4x.commands.custom_dimensions.build_admin_client",
                 return_value=mock_client,
             ),
         ):
@@ -80,9 +80,9 @@ class TestCustomDimensionsList:
         ]
 
         with (
-            patch("ga4.commands.custom_dimensions.load_config") as mock_cfg,
+            patch("ga4x.commands.custom_dimensions.load_config") as mock_cfg,
             patch(
-                "ga4.commands.custom_dimensions.build_admin_client",
+                "ga4x.commands.custom_dimensions.build_admin_client",
                 return_value=mock_client,
             ),
         ):
@@ -103,9 +103,9 @@ class TestCustomDimensionsList:
         mock_client.list_custom_dimensions.return_value = []
 
         with (
-            patch("ga4.commands.custom_dimensions.load_config") as mock_cfg,
+            patch("ga4x.commands.custom_dimensions.load_config") as mock_cfg,
             patch(
-                "ga4.commands.custom_dimensions.build_admin_client",
+                "ga4x.commands.custom_dimensions.build_admin_client",
                 return_value=mock_client,
             ),
         ):
@@ -128,9 +128,9 @@ class TestCustomDimensionsList:
         mock_client.list_custom_dimensions.side_effect = PermissionDenied("denied")
 
         with (
-            patch("ga4.commands.custom_dimensions.load_config") as mock_cfg,
+            patch("ga4x.commands.custom_dimensions.load_config") as mock_cfg,
             patch(
-                "ga4.commands.custom_dimensions.build_admin_client",
+                "ga4x.commands.custom_dimensions.build_admin_client",
                 return_value=mock_client,
             ),
         ):

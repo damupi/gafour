@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 properties --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x properties --help"
 ---
 
 # ga4 properties
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 properties <command> [flags]
+ga4x properties <command> [flags]
 ```
 
 ## Commands
@@ -64,8 +64,8 @@ The numeric property ID is the trailing segment of `name` (e.g. `"properties/123
 
 ```bash
 # List properties for account 123456
-ga4 properties list --account-id 123456
+ga4x properties list --account-id 123456
 
 # Get details for a specific property
-ga4 properties get 123456789
+ga4x properties get 123456789
 ```

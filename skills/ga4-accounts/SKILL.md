@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 accounts --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x accounts --help"
 ---
 
 # ga4 accounts
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 accounts <command> [flags]
+ga4x accounts <command> [flags]
 ```
 
 ## Commands
@@ -68,11 +68,11 @@ The numeric account ID is the trailing segment of `name` (e.g. `"accounts/123456
 
 ```bash
 # List all accessible accounts
-ga4 accounts list
+ga4x accounts list
 
 # Get details for a specific account
-ga4 accounts get 123456
+ga4x accounts get 123456
 
 # List accounts as a table
-ga4 accounts list --format table
+ga4x accounts list --format table
 ```

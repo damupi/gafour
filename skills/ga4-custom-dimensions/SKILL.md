@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 custom-dimensions --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x custom-dimensions --help"
 ---
 
 # ga4 custom-dimensions
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 custom-dimensions <command> <property-id> [flags]
+ga4x custom-dimensions <command> <property-id> [flags]
 ```
 
 ## Commands
@@ -54,5 +54,5 @@ ga4 custom-dimensions <command> <property-id> [flags]
 
 ```bash
 # List all custom dimensions for a property
-ga4 custom-dimensions list 123456789
+ga4x custom-dimensions list 123456789
 ```

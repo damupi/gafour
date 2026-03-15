@@ -55,7 +55,7 @@ All project docs live in `.claude/docs/`:
 ## Commands (to be added once scaffolded)
 
 ```bash
-uv run ga4 --help          # run CLI
+uv run ga4x --help          # run CLI
 uv run pytest              # run all tests
 uv run pytest tests/test_accounts.py  # run single test module
 uv run ruff check .        # lint
@@ -80,7 +80,7 @@ ga4-cli/
 └── uv.lock
 ```
 
-Package name: `ga4`, entry point: `ga4` command.
+Package name: `ga4x`, entry point: `ga4x` command.
 
 # Release Management Protocol
 
@@ -112,12 +112,12 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 - `reports run` and `realtime run` — **JSON only**, always aligned to the GA4 `RunReportResponse` / `RunRealtimeReportResponse` proto structure.
 - All admin commands (`accounts`, `properties`, `datastreams`, etc.) — support `--format table|json|csv` (table is the default).
 
-### Filter DSL (`src/ga4/filters.py`)
+### Filter DSL (`src/ga4x/filters.py`)
 - `parse_filter_expression(str) -> FilterExpression` — converts the `--filter` / `--metric-filter` string into a `FilterExpression` Pydantic model.
 - `filter_expression_to_proto(FilterExpression) -> ProtoFilterExpression` — converts the Pydantic model to the GA4 proto required by the API client.
 - `models/report.py` is proto-free; all proto imports live in `filters.py` and command handlers.
 
-### Pydantic models (`src/ga4/models/`)
+### Pydantic models (`src/ga4x/models/`)
 - All GA4 request inputs and responses are Pydantic models.
 - `FilterExpression`, `FilterField`, `StringFilter`, `NumericFilter`, `NumericValue` mirror the GA4 FilterExpression proto hierarchy.
 - `ReportRequest.dimension_filter` and `metric_filter` are typed `FilterExpression | None`, not `str`.

@@ -55,15 +55,15 @@ Or with `uv`:
 git clone https://github.com/damupi/ga4-cli.git
 cd ga4-cli
 uv sync
-uv run ga4 --help
+uv run ga4x --help
 ```
 
-> **Note:** When installed from source with `uv sync`, prefix all commands with `uv run` (e.g. `uv run ga4 accounts list`) or activate the virtual environment first with `source .venv/bin/activate`.
+> **Note:** When installed from source with `uv sync`, prefix all commands with `uv run` (e.g. `uv run ga4x accounts list`) or activate the virtual environment first with `source .venv/bin/activate`.
 
 Verify the installation:
 
 ```bash
-ga4 --version
+ga4x --version
 ```
 
 ---
@@ -72,19 +72,19 @@ ga4 --version
 
 ```bash
 # 1. Run the setup wizard
-ga4 config init
+ga4x config init
 
 # 2. Verify authentication
-ga4 auth status
+ga4x auth status
 
 # 3. List your accounts
-ga4 accounts list
+ga4x accounts list
 
 # 4. List properties for an account
-ga4 properties list --account-id 123456
+ga4x properties list --account-id 123456
 
 # 5. Run a report
-ga4 reports run \
+ga4x reports run \
   --property-id 123456789 \
   --metrics activeUsers,sessions \
   --start-date 2026-01-01 \
@@ -106,8 +106,8 @@ ga4 reports run \
 4. Configure the CLI:
 
 ```bash
-ga4 config set auth_method service-account
-ga4 config set key_file /path/to/key.json
+ga4x config set auth_method service-account
+ga4x config set key_file /path/to/key.json
 ```
 
 Or set the standard Application Default Credentials environment variable:
@@ -121,8 +121,8 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
 Use a short-lived OAuth2 access token (useful in automated environments where a token is already available):
 
 ```bash
-ga4 config set auth_method token
-ga4 config set access_token YOUR_ACCESS_TOKEN
+ga4x config set auth_method token
+ga4x config set access_token YOUR_ACCESS_TOKEN
 ```
 
 Or via environment variable:
@@ -134,7 +134,7 @@ export GA4_ACCESS_TOKEN=YOUR_ACCESS_TOKEN
 ### Verify
 
 ```bash
-ga4 auth status
+ga4x auth status
 ```
 
 ---
@@ -144,28 +144,28 @@ ga4 auth status
 Run the interactive wizard to set up everything at once:
 
 ```bash
-ga4 config init
+ga4x config init
 ```
 
 Or set individual values:
 
 ```bash
-ga4 config set auth_method service-account
-ga4 config set key_file /path/to/key.json
-ga4 config set default_property_id 123456789   # skip --property-id on every command
-ga4 config set output_format table              # table | json | csv
+ga4x config set auth_method service-account
+ga4x config set key_file /path/to/key.json
+ga4x config set default_property_id 123456789   # skip --property-id on every command
+ga4x config set output_format table              # table | json | csv
 ```
 
 View current config:
 
 ```bash
-ga4 config show
+ga4x config show
 ```
 
 Clear a value back to its default:
 
 ```bash
-ga4 config unset default_property_id
+ga4x config unset default_property_id
 ```
 
 Config is stored at `~/.config/ga4/config.json`.
@@ -177,28 +177,28 @@ Config is stored at `~/.config/ga4/config.json`.
 ### Accounts
 
 ```bash
-ga4 accounts list                        # list all accessible accounts
-ga4 accounts get <account-id>            # get account details
+ga4x accounts list                        # list all accessible accounts
+ga4x accounts get <account-id>            # get account details
 ```
 
 ### Properties
 
 ```bash
-ga4 properties list --account-id <id>   # list properties for an account
-ga4 properties get <property-id>        # get property details
+ga4x properties list --account-id <id>   # list properties for an account
+ga4x properties get <property-id>        # get property details
 ```
 
 ### Data Streams
 
 ```bash
-ga4 datastreams list <property-id>               # list data streams
-ga4 datastreams get <property-id> <stream-id>    # get stream details (includes measurement ID)
+ga4x datastreams list <property-id>               # list data streams
+ga4x datastreams get <property-id> <stream-id>    # get stream details (includes measurement ID)
 ```
 
 ### Reports
 
 ```bash
-ga4 reports run \
+ga4x reports run \
   --property-id 123456789 \
   --metrics activeUsers,sessions,engagementRate \
   --start-date 2026-01-01 \
@@ -231,30 +231,30 @@ ga4 reports run \
 ### Realtime
 
 ```bash
-ga4 realtime run --property-id 123456789
-ga4 realtime run --property-id 123456789 --metrics activeUsers --dimensions country
+ga4x realtime run --property-id 123456789
+ga4x realtime run --property-id 123456789 --metrics activeUsers --dimensions country
 ```
 
 ### Metadata
 
 ```bash
 # List all available dimensions
-ga4 metadata dimensions --property-id 123456789
+ga4x metadata dimensions --property-id 123456789
 
 # Search dimensions by name
-ga4 metadata dimensions --property-id 123456789 --search device
+ga4x metadata dimensions --property-id 123456789 --search device
 
 # List all available metrics
-ga4 metadata metrics --property-id 123456789 --search revenue
+ga4x metadata metrics --property-id 123456789 --search revenue
 
 # Check which dimensions and metrics can be queried together
-ga4 metadata compatibility \
+ga4x metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics activeUsers,sessions
 
 # Show only incompatible combinations
-ga4 metadata compatibility \
+ga4x metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics activeUsers,sessions \
@@ -264,44 +264,44 @@ ga4 metadata compatibility \
 ### Key Events
 
 ```bash
-ga4 key-events list <property-id>       # list all key events (formerly conversions)
+ga4x key-events list <property-id>       # list all key events (formerly conversions)
 ```
 
 ### Custom Dimensions & Metrics
 
 ```bash
-ga4 custom-dimensions list <property-id>   # list custom dimensions
-ga4 custom-metrics list <property-id>      # list custom metrics
+ga4x custom-dimensions list <property-id>   # list custom dimensions
+ga4x custom-metrics list <property-id>      # list custom metrics
 ```
 
 ### Audiences
 
 ```bash
-ga4 audiences list <property-id>                    # list all audiences
-ga4 audiences get <property-id> <audience-id>       # get audience details
+ga4x audiences list <property-id>                    # list all audiences
+ga4x audiences get <property-id> <audience-id>       # get audience details
 ```
 
 ### Events
 
 ```bash
-ga4 events list <property-id> <stream-id>   # list event create rules for a stream
+ga4x events list <property-id> <stream-id>   # list event create rules for a stream
 ```
 
 ### Auth
 
 ```bash
-ga4 auth login --method service-account     # configure credentials
-ga4 auth status                             # verify connectivity
-ga4 auth logout                             # remove stored credentials
+ga4x auth login --method service-account     # configure credentials
+ga4x auth status                             # verify connectivity
+ga4x auth logout                             # remove stored credentials
 ```
 
 ### Config
 
 ```bash
-ga4 config init                             # interactive setup wizard
-ga4 config show                             # print current config as JSON
-ga4 config set <key> <value>               # set a config value
-ga4 config unset <key>                     # reset a config value to default
+ga4x config init                             # interactive setup wizard
+ga4x config show                             # print current config as JSON
+ga4x config set <key> <value>               # set a config value
+ga4x config unset <key>                     # reset a config value to default
 ```
 
 ---
@@ -314,13 +314,13 @@ All other commands (`accounts`, `properties`, `datastreams`, etc.) support `--fo
 
 ```bash
 # Human-readable table (default)
-ga4 accounts list --format table
+ga4x accounts list --format table
 
 # Machine-readable JSON
-ga4 accounts list --format json
+ga4x accounts list --format json
 
 # CSV for spreadsheets
-ga4 accounts list --format csv --output accounts.csv
+ga4x accounts list --format csv --output accounts.csv
 ```
 
 ---

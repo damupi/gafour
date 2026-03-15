@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from ga4.cli import app
+from ga4x.cli import app
 
 
 def _make_account(name: str, display_name: str, region_code: str = "US") -> MagicMock:
@@ -30,8 +30,8 @@ class TestAccountsList:
         ]
 
         with (
-            patch("ga4.commands.accounts.load_config") as mock_cfg,
-            patch("ga4.commands.accounts.build_admin_client", return_value=mock_client),
+            patch("ga4x.commands.accounts.load_config") as mock_cfg,
+            patch("ga4x.commands.accounts.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -55,8 +55,8 @@ class TestAccountsList:
         ]
 
         with (
-            patch("ga4.commands.accounts.load_config") as mock_cfg,
-            patch("ga4.commands.accounts.build_admin_client", return_value=mock_client),
+            patch("ga4x.commands.accounts.load_config") as mock_cfg,
+            patch("ga4x.commands.accounts.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -79,8 +79,8 @@ class TestAccountsList:
         mock_client.list_accounts.return_value = []
 
         with (
-            patch("ga4.commands.accounts.load_config") as mock_cfg,
-            patch("ga4.commands.accounts.build_admin_client", return_value=mock_client),
+            patch("ga4x.commands.accounts.load_config") as mock_cfg,
+            patch("ga4x.commands.accounts.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -101,8 +101,8 @@ class TestAccountsList:
         mock_client.list_accounts.side_effect = PermissionDenied("forbidden")
 
         with (
-            patch("ga4.commands.accounts.load_config") as mock_cfg,
-            patch("ga4.commands.accounts.build_admin_client", return_value=mock_client),
+            patch("ga4x.commands.accounts.load_config") as mock_cfg,
+            patch("ga4x.commands.accounts.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -124,8 +124,8 @@ class TestAccountsGet:
         )
 
         with (
-            patch("ga4.commands.accounts.load_config") as mock_cfg,
-            patch("ga4.commands.accounts.build_admin_client", return_value=mock_client),
+            patch("ga4x.commands.accounts.load_config") as mock_cfg,
+            patch("ga4x.commands.accounts.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -147,8 +147,8 @@ class TestAccountsGet:
         mock_client.get_account.side_effect = NotFound("not found")
 
         with (
-            patch("ga4.commands.accounts.load_config") as mock_cfg,
-            patch("ga4.commands.accounts.build_admin_client", return_value=mock_client),
+            patch("ga4x.commands.accounts.load_config") as mock_cfg,
+            patch("ga4x.commands.accounts.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -168,8 +168,8 @@ class TestAccountsGet:
         mock_client.get_account.side_effect = PermissionDenied("denied")
 
         with (
-            patch("ga4.commands.accounts.load_config") as mock_cfg,
-            patch("ga4.commands.accounts.build_admin_client", return_value=mock_client),
+            patch("ga4x.commands.accounts.load_config") as mock_cfg,
+            patch("ga4x.commands.accounts.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
