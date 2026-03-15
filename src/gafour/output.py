@@ -11,8 +11,8 @@ from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 
-from ga4x.errors import GA4CLIError
-from ga4x.models.report import ReportResponse
+from gafour.errors import GA4CLIError
+from gafour.models.report import ReportResponse
 
 _stderr_console = Console(stderr=True)
 _stdout_console = Console()

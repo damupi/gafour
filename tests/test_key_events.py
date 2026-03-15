@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from ga4x.cli import app
+from gafour.cli import app
 
 
 def _make_key_event(
@@ -35,8 +35,8 @@ class TestKeyEventsList:
         ]
 
         with (
-            patch("ga4x.commands.key_events.load_config") as mock_cfg,
-            patch("ga4x.commands.key_events.build_admin_client", return_value=mock_client),
+            patch("gafour.commands.key_events.load_config") as mock_cfg,
+            patch("gafour.commands.key_events.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -64,8 +64,8 @@ class TestKeyEventsList:
         ]
 
         with (
-            patch("ga4x.commands.key_events.load_config") as mock_cfg,
-            patch("ga4x.commands.key_events.build_admin_client", return_value=mock_client),
+            patch("gafour.commands.key_events.load_config") as mock_cfg,
+            patch("gafour.commands.key_events.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -84,8 +84,8 @@ class TestKeyEventsList:
         mock_client.list_key_events.return_value = []
 
         with (
-            patch("ga4x.commands.key_events.load_config") as mock_cfg,
-            patch("ga4x.commands.key_events.build_admin_client", return_value=mock_client),
+            patch("gafour.commands.key_events.load_config") as mock_cfg,
+            patch("gafour.commands.key_events.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -106,8 +106,8 @@ class TestKeyEventsList:
         mock_client.list_key_events.side_effect = PermissionDenied("denied")
 
         with (
-            patch("ga4x.commands.key_events.load_config") as mock_cfg,
-            patch("ga4x.commands.key_events.build_admin_client", return_value=mock_client),
+            patch("gafour.commands.key_events.load_config") as mock_cfg,
+            patch("gafour.commands.key_events.build_admin_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",

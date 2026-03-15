@@ -6,11 +6,11 @@ from typing import Annotated, Optional
 import typer
 from google.api_core import exceptions as google_exceptions  # type: ignore[import-untyped]
 
-from ga4x.auth import build_admin_client
-from ga4x.config import load_config
-from ga4x.errors import AuthError, GA4CLIError, NetworkError, PropertyNotFoundError, ValidationError
-from ga4x.models.property import Property
-from ga4x.output import OutputFormat, print_error, render, render_json_item, render_json_list
+from gafour.auth import build_admin_client
+from gafour.config import load_config
+from gafour.errors import AuthError, GA4CLIError, NetworkError, PropertyNotFoundError, ValidationError
+from gafour.models.property import Property
+from gafour.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 properties_app = typer.Typer(name="properties", help="Manage GA4 properties.")
 

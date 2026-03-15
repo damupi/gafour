@@ -6,11 +6,11 @@ from typing import Annotated, Optional
 import typer
 from google.api_core import exceptions as google_exceptions  # type: ignore[import-untyped]
 
-from ga4x.auth import build_data_client
-from ga4x.config import load_config
-from ga4x.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from ga4x.models.report import ReportRequest, ReportResponse
-from ga4x.output import print_error, render_report
+from gafour.auth import build_data_client
+from gafour.config import load_config
+from gafour.errors import AuthError, GA4CLIError, NetworkError, ValidationError
+from gafour.models.report import ReportRequest, ReportResponse
+from gafour.output import print_error, render_report
 
 reports_app = typer.Typer(name="reports", help="Run GA4 Data API reports.")
 
@@ -152,7 +152,7 @@ def reports_run(
             print_error(err)
             raise typer.Exit(err.exit_code)
 
-        from ga4x.filters import parse_filter_expression
+        from gafour.filters import parse_filter_expression
 
         dim_filter = None
         if filter_expr:
@@ -202,7 +202,7 @@ def reports_run(
             RunReportRequest,
         )
 
-        from ga4x.filters import filter_expression_to_proto
+        from gafour.filters import filter_expression_to_proto
 
         api_request = RunReportRequest(
             property=f"properties/{req.property_id}",

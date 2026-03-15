@@ -4,9 +4,9 @@ from typing import Annotated, Literal, Optional
 
 import typer
 
-from ga4x.config import AuthMethod, load_config, save_config
-from ga4x.errors import AuthError, GA4CLIError
-from ga4x.output import print_error, print_success
+from gafour.config import AuthMethod, load_config, save_config
+from gafour.errors import AuthError, GA4CLIError
+from gafour.output import print_error, print_success
 
 auth_app = typer.Typer(name="auth", help="Manage GA4 CLI authentication.")
 
@@ -30,7 +30,7 @@ def auth_login(
     try:
         config = load_config()
     except GA4CLIError:
-        from ga4x.config import Config
+        from gafour.config import Config
 
         config = Config()
 
@@ -101,7 +101,7 @@ def auth_status() -> None:
 
     # Attempt to build a client to verify credentials work
     try:
-        from ga4x.auth import build_admin_client
+        from gafour.auth import build_admin_client
 
         client = build_admin_client(config)
         # Make a lightweight call to verify connectivity

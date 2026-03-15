@@ -4,9 +4,9 @@ from pathlib import Path
 
 import typer
 
-from ga4x.config import CONFIG_PATH, Config, load_config, save_config
-from ga4x.errors import GA4CLIError, ValidationError
-from ga4x.output import print_error, print_success
+from gafour.config import CONFIG_PATH, Config, load_config, save_config
+from gafour.errors import GA4CLIError, ValidationError
+from gafour.output import print_error, print_success
 
 config_app = typer.Typer(name="config", help="Manage GA4 CLI configuration.")
 
@@ -52,7 +52,7 @@ def config_set(
     try:
         config = load_config()
     except GA4CLIError:
-        from ga4x.config import Config
+        from gafour.config import Config
 
         config = Config()
 

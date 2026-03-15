@@ -1,4 +1,4 @@
-# ga4x
+# gafour
 
 A comprehensive command-line interface for Google Analytics 4 — run reports, inspect metadata, check dimension/metric compatibility, manage properties, and more.
 
@@ -32,38 +32,38 @@ A comprehensive command-line interface for Google Analytics 4 — run reports, i
 ### From PyPI (recommended)
 
 ```bash
-pip install ga4x
+pip install gafour
 ```
 
 Or with `uv`:
 
 ```bash
-uv tool install ga4x
+uv tool install gafour
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/damupi/ga4x.git
-cd ga4x
+git clone https://github.com/damupi/gafour.git
+cd gafour
 pip install -e .
 ```
 
 Or with `uv`:
 
 ```bash
-git clone https://github.com/damupi/ga4x.git
-cd ga4x
+git clone https://github.com/damupi/gafour.git
+cd gafour
 uv sync
-uv run ga4x --help
+uv run gafour --help
 ```
 
-> **Note:** When installed from source with `uv sync`, prefix all commands with `uv run` (e.g. `uv run ga4x accounts list`) or activate the virtual environment first with `source .venv/bin/activate`.
+> **Note:** When installed from source with `uv sync`, prefix all commands with `uv run` (e.g. `uv run gafour accounts list`) or activate the virtual environment first with `source .venv/bin/activate`.
 
 Verify the installation:
 
 ```bash
-ga4x --version
+gafour --version
 ```
 
 ---
@@ -72,19 +72,19 @@ ga4x --version
 
 ```bash
 # 1. Run the setup wizard
-ga4x config init
+gafour config init
 
 # 2. Verify authentication
-ga4x auth status
+gafour auth status
 
 # 3. List your accounts
-ga4x accounts list
+gafour accounts list
 
 # 4. List properties for an account
-ga4x properties list --account-id 123456
+gafour properties list --account-id 123456
 
 # 5. Run a report
-ga4x reports run \
+gafour reports run \
   --property-id 123456789 \
   --metrics activeUsers,sessions \
   --start-date 2026-01-01 \
@@ -96,7 +96,7 @@ ga4x reports run \
 
 ## Authentication
 
-`ga4-cli` supports two authentication methods.
+`gafour` supports two authentication methods.
 
 ### Option A — Service Account (recommended for scripts and CI)
 
@@ -106,8 +106,8 @@ ga4x reports run \
 4. Configure the CLI:
 
 ```bash
-ga4x config set auth_method service-account
-ga4x config set key_file /path/to/key.json
+gafour config set auth_method service-account
+gafour config set key_file /path/to/key.json
 ```
 
 Or set the standard Application Default Credentials environment variable:
@@ -121,8 +121,8 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
 Use a short-lived OAuth2 access token (useful in automated environments where a token is already available):
 
 ```bash
-ga4x config set auth_method token
-ga4x config set access_token YOUR_ACCESS_TOKEN
+gafour config set auth_method token
+gafour config set access_token YOUR_ACCESS_TOKEN
 ```
 
 Or via environment variable:
@@ -134,7 +134,7 @@ export GA4_ACCESS_TOKEN=YOUR_ACCESS_TOKEN
 ### Verify
 
 ```bash
-ga4x auth status
+gafour auth status
 ```
 
 ---
@@ -144,28 +144,28 @@ ga4x auth status
 Run the interactive wizard to set up everything at once:
 
 ```bash
-ga4x config init
+gafour config init
 ```
 
 Or set individual values:
 
 ```bash
-ga4x config set auth_method service-account
-ga4x config set key_file /path/to/key.json
-ga4x config set default_property_id 123456789   # skip --property-id on every command
-ga4x config set output_format table              # table | json | csv
+gafour config set auth_method service-account
+gafour config set key_file /path/to/key.json
+gafour config set default_property_id 123456789   # skip --property-id on every command
+gafour config set output_format table              # table | json | csv
 ```
 
 View current config:
 
 ```bash
-ga4x config show
+gafour config show
 ```
 
 Clear a value back to its default:
 
 ```bash
-ga4x config unset default_property_id
+gafour config unset default_property_id
 ```
 
 Config is stored at `~/.config/ga4/config.json`.
@@ -177,28 +177,28 @@ Config is stored at `~/.config/ga4/config.json`.
 ### Accounts
 
 ```bash
-ga4x accounts list                        # list all accessible accounts
-ga4x accounts get <account-id>            # get account details
+gafour accounts list                        # list all accessible accounts
+gafour accounts get <account-id>            # get account details
 ```
 
 ### Properties
 
 ```bash
-ga4x properties list --account-id <id>   # list properties for an account
-ga4x properties get <property-id>        # get property details
+gafour properties list --account-id <id>   # list properties for an account
+gafour properties get <property-id>        # get property details
 ```
 
 ### Data Streams
 
 ```bash
-ga4x datastreams list <property-id>               # list data streams
-ga4x datastreams get <property-id> <stream-id>    # get stream details (includes measurement ID)
+gafour datastreams list <property-id>               # list data streams
+gafour datastreams get <property-id> <stream-id>    # get stream details (includes measurement ID)
 ```
 
 ### Reports
 
 ```bash
-ga4x reports run \
+gafour reports run \
   --property-id 123456789 \
   --metrics activeUsers,sessions,engagementRate \
   --start-date 2026-01-01 \
@@ -231,30 +231,30 @@ ga4x reports run \
 ### Realtime
 
 ```bash
-ga4x realtime run --property-id 123456789
-ga4x realtime run --property-id 123456789 --metrics activeUsers --dimensions country
+gafour realtime run --property-id 123456789
+gafour realtime run --property-id 123456789 --metrics activeUsers --dimensions country
 ```
 
 ### Metadata
 
 ```bash
 # List all available dimensions
-ga4x metadata dimensions --property-id 123456789
+gafour metadata dimensions --property-id 123456789
 
 # Search dimensions by name
-ga4x metadata dimensions --property-id 123456789 --search device
+gafour metadata dimensions --property-id 123456789 --search device
 
 # List all available metrics
-ga4x metadata metrics --property-id 123456789 --search revenue
+gafour metadata metrics --property-id 123456789 --search revenue
 
 # Check which dimensions and metrics can be queried together
-ga4x metadata compatibility \
+gafour metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics activeUsers,sessions
 
 # Show only incompatible combinations
-ga4x metadata compatibility \
+gafour metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics activeUsers,sessions \
@@ -264,44 +264,44 @@ ga4x metadata compatibility \
 ### Key Events
 
 ```bash
-ga4x key-events list <property-id>       # list all key events (formerly conversions)
+gafour key-events list <property-id>       # list all key events (formerly conversions)
 ```
 
 ### Custom Dimensions & Metrics
 
 ```bash
-ga4x custom-dimensions list <property-id>   # list custom dimensions
-ga4x custom-metrics list <property-id>      # list custom metrics
+gafour custom-dimensions list <property-id>   # list custom dimensions
+gafour custom-metrics list <property-id>      # list custom metrics
 ```
 
 ### Audiences
 
 ```bash
-ga4x audiences list <property-id>                    # list all audiences
-ga4x audiences get <property-id> <audience-id>       # get audience details
+gafour audiences list <property-id>                    # list all audiences
+gafour audiences get <property-id> <audience-id>       # get audience details
 ```
 
 ### Events
 
 ```bash
-ga4x events list <property-id> <stream-id>   # list event create rules for a stream
+gafour events list <property-id> <stream-id>   # list event create rules for a stream
 ```
 
 ### Auth
 
 ```bash
-ga4x auth login --method service-account     # configure credentials
-ga4x auth status                             # verify connectivity
-ga4x auth logout                             # remove stored credentials
+gafour auth login --method service-account     # configure credentials
+gafour auth status                             # verify connectivity
+gafour auth logout                             # remove stored credentials
 ```
 
 ### Config
 
 ```bash
-ga4x config init                             # interactive setup wizard
-ga4x config show                             # print current config as JSON
-ga4x config set <key> <value>               # set a config value
-ga4x config unset <key>                     # reset a config value to default
+gafour config init                             # interactive setup wizard
+gafour config show                             # print current config as JSON
+gafour config set <key> <value>               # set a config value
+gafour config unset <key>                     # reset a config value to default
 ```
 
 ---
@@ -314,13 +314,13 @@ All other commands (`accounts`, `properties`, `datastreams`, etc.) support `--fo
 
 ```bash
 # Human-readable table (default)
-ga4x accounts list --format table
+gafour accounts list --format table
 
 # Machine-readable JSON
-ga4x accounts list --format json
+gafour accounts list --format json
 
 # CSV for spreadsheets
-ga4x accounts list --format csv --output accounts.csv
+gafour accounts list --format csv --output accounts.csv
 ```
 
 ---
@@ -341,7 +341,7 @@ Environment variables override values in the config file.
 
 ## Acknowledgements
 
-This project was inspired by the work of [FunnelEnvy/ga4-cli](https://github.com/FunnelEnvy/ga4-cli) and the [`ga4-cli` package on PyPI](https://pypi.org/project/ga4-cli/). Many thanks to the authors for pioneering a GA4 command-line interface.
+This project was inspired by the work of [FunnelEnvy/gafour](https://github.com/FunnelEnvy/gafour) and the [`gafour` package on PyPI](https://pypi.org/project/gafour/). Many thanks to the authors for pioneering a GA4 command-line interface.
 
 ---
 

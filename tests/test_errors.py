@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from ga4x.errors import (
+from gafour.errors import (
     AccountNotFoundError,
     AuthError,
     ConfigError,

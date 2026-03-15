@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ga4x"
+name = "gafour"
 version = "1.0.0"
-description = "A comprehensive Google Analytics 4 CLI"
+description = "A fast, comprehensive Google Analytics 4 CLI"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
@@ -21,12 +21,12 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/damupi/ga4x"
-Repository = "https://github.com/damupi/ga4x"
+Homepage = "https://github.com/damupi/gafour"
+Repository = "https://github.com/damupi/gafour"
 "Inspired by" = "https://github.com/sulimanbenhalim/ga-cli"
 
 [project.scripts]
-ga4x = "ga4x.cli:app"
+gafour = "gafour.cli:app"
 
 [dependency-groups]
 dev = [
@@ -38,7 +38,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ga4x"]
+packages = ["src/gafour"]
 
 [tool.ruff]
 line-length = 100
@@ -54,4 +54,4 @@ mypy_path = "src"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=ga4x --cov-report=term-missing"
+addopts = "--cov=gafour --cov-report=term-missing"

@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4x"]
-    cliHelp: "ga4x events --help"
+      bins: ["gafour"]
+    cliHelp: "gafour events --help"
 ---
 
 # ga4 events
 
-> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
+> **PREREQUISITE:** The `gafour` CLI must be installed and authenticated before using this skill.
+> - Installation: see the [Installation](https://github.com/damupi/gafour#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/gafour#authentication) section. Run `gafour auth status` to verify.
 
 ```bash
-ga4x events <command> <property-id> <stream-id> [flags]
+gafour events <command> <property-id> <stream-id> [flags]
 ```
 
 ## Commands
@@ -48,11 +48,11 @@ ga4x events <command> <property-id> <stream-id> [flags]
 ]
 ```
 
-The stream ID required here is the numeric ID from `ga4x datastreams list`. Use `ga4x datastreams list <property-id>` to discover available stream IDs.
+The stream ID required here is the numeric ID from `gafour datastreams list`. Use `gafour datastreams list <property-id>` to discover available stream IDs.
 
 ## Examples
 
 ```bash
 # List event create rules for a stream
-ga4x events list 123456789 9876543
+gafour events list 123456789 9876543
 ```

@@ -6,10 +6,10 @@ from typing import Annotated, Literal, Optional
 import typer
 from google.api_core import exceptions as google_exceptions  # type: ignore[import-untyped]
 
-from ga4x.auth import build_data_client
-from ga4x.config import load_config
-from ga4x.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from ga4x.models.metadata import (
+from gafour.auth import build_data_client
+from gafour.config import load_config
+from gafour.errors import AuthError, GA4CLIError, NetworkError, ValidationError
+from gafour.models.metadata import (
     CompatibilityResponse,
     CompatibilityStatus,
     DimensionCompatibility,
@@ -17,7 +17,7 @@ from ga4x.models.metadata import (
     MetricCompatibility,
     MetricMetadata,
 )
-from ga4x.output import OutputFormat, print_error, render, render_json_item, render_json_list
+from gafour.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 metadata_app = typer.Typer(name="metadata", help="Retrieve GA4 dimensions and metrics metadata.")
 

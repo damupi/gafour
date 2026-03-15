@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from ga4x.errors import ConfigError
+from gafour.errors import ConfigError
 
 CONFIG_PATH = Path.home() / ".config" / "ga4" / "config.json"
 

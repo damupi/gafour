@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4x"]
-    cliHelp: "ga4x realtime --help"
+      bins: ["gafour"]
+    cliHelp: "gafour realtime --help"
 ---
 
 # ga4 realtime
 
-> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
+> **PREREQUISITE:** The `gafour` CLI must be installed and authenticated before using this skill.
+> - Installation: see the [Installation](https://github.com/damupi/gafour#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/gafour#authentication) section. Run `gafour auth status` to verify.
 
 ```bash
-ga4x realtime run [flags]
+gafour realtime run [flags]
 ```
 
 ## Commands
@@ -62,16 +62,16 @@ Output mirrors the [RunRealtimeReportResponse](https://developers.google.com/ana
 
 ```bash
 # Current active users (default)
-ga4x realtime run --property-id 123456789
+gafour realtime run --property-id 123456789
 
 # Active users broken down by country
-ga4x realtime run \
+gafour realtime run \
   --property-id 123456789 \
   --metrics activeUsers \
   --dimensions country
 
 # Active users and events by device category
-ga4x realtime run \
+gafour realtime run \
   --property-id 123456789 \
   --metrics activeUsers,eventCount \
   --dimensions deviceCategory
