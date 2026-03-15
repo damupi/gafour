@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "rock-loop-490206-b1",
+  "private_key_id": "180d9f257bef5fdfb9e8592af3d4965ad113599e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCn/GrpqZdzkixp\ntDwPZtTNzisYII5suuQ888mZtrWyC/kc50g785/rB5f+PTAu8K/UvBx87Khq4NR4\nrdoU+Cc0EiuGA1ARpbztxt4flV3pN0/HmYxqJ117F4Is+RWktrN78evfjFZD9UCZ\nSHIIQglJ7OhaaLlh1ri9cd05dBLjzG6Ld5u8heBZwUhi1ZaXi3NEXYCBuZJ2vOBz\ntmsLKSnKxWCryFXwAell0WK9mppD9nrTe7sfPkO7dzEeT/e5rU9hjjZOzb/KQLkJ\n7CjcOi3ZVwqwaoRhRTVJWf72EQOUI4tmHZ4aOn1nncv4l19AFDIG3oziqO4yZPm2\naGz//CedAgMBAAECggEAKIdwNP1fhrjs4bjkJ7Qf4iKch5btPeLuZ51K1bz9A967\nJOPRK/O4sNAVdffFzQFxbrJO7j372UNyx8XsIJSJgtjiatQYSJWz6itJkpWrQXYA\nl8/eTos+VNEkbVzQQbv5vEzvI3F8q6s7gW/24TKrgow3t/5dwbL4Qe67mN2+I/rd\n1VA2TZFpSSkB6jWV+EBoyGdf+tu4XBp+VfbniwKuxHuXoQ3bz02PoOfTN9PQmsJc\nrjm3p3eGnk8nuvC9SchOKjP581SYODIaCAa4zGl4OnpN08IW8/igpEkIQhwmsO0R\nhsb0VdoczquVNLbECtp4vjscbn2LHAtPfXWCmL7vGQKBgQDUhGAIhlvot+CHCGlu\nW3cLi/kje36kzF0i5iUSGlrsrH5NB8rf4uFf3ENrt7JDhZWSh4xEDSzNdRlHBiDg\nK2z3n/UN+xA0JQPFB6U9+gVGlMouQpbqeBj47SXfxpmj05D6iLgjLVOjH99Aa6OK\nq413uxw8t2Q/PgSq9PQH9MTvdQKBgQDKW4IyFZbYwHou6jCjVWhbOWhPyv1v+kCM\n6dRV4MLgabMDSz36eH8WN5AG996wvtMG7Xg3TBuzfFZkr/RAh4bXUixLUmqGHaIs\nJK+RTbL23kAGLeIxirlpNpo35dybuYBMusofW/Hx0hkPYHpGsFdgh01LM3DbiKAv\nyXkWy4m6iQKBgFttk+829qWZLgSKDunGeeHC1213fNWjglI4VyyBoCqAT1oOhy5o\n6nMWTP8zqYK5Hs9Kd4LzdBn0TeqrbUtkA15JN+FK6P62CfgjQOj3/nsOGilqxoib\nIIs/Y3LxeznrFE1ksmuX3YqpdJ+/bz2CbrtbCVvpvjwjD1kJR0+A85TdAoGBAIdp\n1SZO7DMAGsNqVEH41Wy2bed3n0Ff5fJmR4FwdvhVw0VhBIioOeNUKz1+gbck+3KX\nVusqMx9ZBTc7x+emycUtaBa/gClfizafFh3WMPyinZWE/ujIPGr77xeY6pgK+qBe\nHwP9M1rvjXWMykajmtUttbutIMjIFOnlmPJ4IiKBAoGATcYacPpkBCb5cUf5h+od\n+KORGMB0oPbtZwaInBBnHB8ZWquhohT/jKS2JDM0KRO0BiZOLEV6LrrWmr2BWbx/\nQe1cgzn3G6uoodHg3o1Pi5QgbYs1ULkpFQ0x3WnIEzP/ZoBf7pkVVq32weueIfLM\nBgGXTfQ5SNZFi39lFodoDJo=\n-----END PRIVATE KEY-----\n",
+  "client_email": "ga4-cli@rock-loop-490206-b1.iam.gserviceaccount.com",
+  "client_id": "113650036788550182285",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ga4-cli%40rock-loop-490206-b1.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
