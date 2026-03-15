@@ -339,6 +339,12 @@ Environment variables override values in the config file.
 
 ---
 
+## Acknowledgements
+
+This project was inspired by the work of [FunnelEnvy/ga4-cli](https://github.com/FunnelEnvy/ga4-cli) and the [`ga4-cli` package on PyPI](https://pypi.org/project/ga4-cli/). Many thanks to the authors for pioneering a GA4 command-line interface.
+
+---
+
 ## License
 
 MIT
