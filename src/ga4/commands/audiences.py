@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
 from ga4.models.audience import Audience
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 audiences_app = typer.Typer(name="audiences", help="Manage GA4 audiences.")
 
@@ -58,9 +58,10 @@ def audiences_list(
                 )
             )
 
-        rows = [_audience_to_dict(a) for a in aud_list]
-        columns = ["Audience ID", "Display Name", "Description", "Membership Days"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(aud_list)
+        else:
+            result = render([_audience_to_dict(a) for a in aud_list], format, ["Audience ID", "Display Name", "Description", "Membership Days"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:
@@ -116,16 +117,10 @@ def audiences_get(
             ads_personalization_enabled=getattr(a, "ads_personalization_enabled", None),
             create_time=str(a.create_time) if a.create_time else None,
         )
-        rows = [_audience_to_dict(audience)]
-        columns = [
-            "Audience ID",
-            "Display Name",
-            "Description",
-            "Membership Days",
-            "Ads Personalization",
-            "Created",
-        ]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_item(audience)
+        else:
+            result = render([_audience_to_dict(audience)], format, ["Audience ID", "Display Name", "Description", "Membership Days", "Ads Personalization", "Created"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

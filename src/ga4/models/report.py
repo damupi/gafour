@@ -4,12 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class DateRange(BaseModel):
-    """A date range for use in report requests.
-
-    Attributes:
-        start_date: Inclusive start date in ``YYYY-MM-DD`` or relative format.
-        end_date: Inclusive end date in ``YYYY-MM-DD`` or relative format.
-    """
+    """A date range for use in report requests."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -17,12 +12,25 @@ class DateRange(BaseModel):
     end_date: str
 
 
-class DimensionValue(BaseModel):
-    """A single dimension cell value in a report row.
+class DimensionHeader(BaseModel):
+    """Maps a position index to a dimension name in a report response."""
 
-    Attributes:
-        value: String representation of the dimension value.
-    """
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str
+
+
+class MetricHeader(BaseModel):
+    """Maps a position index to a metric name and type in a report response."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str
+    type: str = ""
+
+
+class DimensionValue(BaseModel):
+    """A single dimension cell value in a report row."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -30,11 +38,7 @@ class DimensionValue(BaseModel):
 
 
 class MetricValue(BaseModel):
-    """A single metric cell value in a report row.
-
-    Attributes:
-        value: String representation of the metric value.
-    """
+    """A single metric cell value in a report row."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -42,12 +46,7 @@ class MetricValue(BaseModel):
 
 
 class ReportRow(BaseModel):
-    """A single data row in a report response.
-
-    Attributes:
-        dimension_values: Ordered dimension cell values.
-        metric_values: Ordered metric cell values.
-    """
+    """A single data row in a report response."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -56,20 +55,7 @@ class ReportRow(BaseModel):
 
 
 class ReportRequest(BaseModel):
-    """Input parameters for a GA4 Data API report request.
-
-    Attributes:
-        property_id: The GA4 property ID (numeric string).
-        metrics: List of metric API names (e.g. ``["sessions", "users"]``).
-        start_date: Inclusive start date.
-        end_date: Inclusive end date.
-        dimensions: Optional list of dimension API names.
-        dimension_filter: Optional dimension filter expression string.
-        metric_filter: Optional metric filter expression string.
-        order_bys: Optional list of order-by expressions.
-        limit: Maximum number of rows to return (1–250000).
-        offset: Zero-based row offset for pagination.
-    """
+    """Input parameters for a GA4 Data API report request."""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -86,20 +72,56 @@ class ReportRequest(BaseModel):
 
 
 class ReportResponse(BaseModel):
-    """Parsed response from a GA4 Data API report.
+    """Parsed response from a GA4 Data API report, mirroring RunReportResponse.
 
-    Attributes:
-        property_id: The GA4 property ID this report was run against.
-        dimensions: Ordered list of dimension API names used in the report.
-        metrics: Ordered list of metric API names used in the report.
-        rows: Data rows.
-        row_count: Total number of matching rows (may exceed ``len(rows)``).
+    See: https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/RunReportResponse
     """
 
     model_config = ConfigDict(populate_by_name=True)
 
-    property_id: str
-    dimensions: list[str]
-    metrics: list[str]
+    dimension_headers: list[DimensionHeader] = []
+    metric_headers: list[MetricHeader] = []
     rows: list[ReportRow] = []
+    totals: list[ReportRow] = []
+    maximums: list[ReportRow] = []
+    minimums: list[ReportRow] = []
     row_count: int = 0
+    kind: str = ""
+
+    @classmethod
+    def from_api_response(cls, response: object) -> ReportResponse:
+        """Build a ReportResponse from a raw proto-plus API response object."""
+
+        def _parse_row(row: object) -> ReportRow:
+            return ReportRow(
+                dimension_values=[
+                    DimensionValue(value=v.value)
+                    for v in getattr(row, "dimension_values", [])
+                ],
+                metric_values=[
+                    MetricValue(value=v.value)
+                    for v in getattr(row, "metric_values", [])
+                ],
+            )
+
+        return cls(
+            dimension_headers=[
+                DimensionHeader(name=h.name)
+                for h in getattr(response, "dimension_headers", [])
+            ],
+            metric_headers=[
+                MetricHeader(
+                    name=h.name,
+                    type=str(
+                        getattr(h, "type_", None) or getattr(h, "type", None) or ""
+                    ),
+                )
+                for h in getattr(response, "metric_headers", [])
+            ],
+            rows=[_parse_row(r) for r in getattr(response, "rows", [])],
+            totals=[_parse_row(r) for r in getattr(response, "totals", [])],
+            maximums=[_parse_row(r) for r in getattr(response, "maximums", [])],
+            minimums=[_parse_row(r) for r in getattr(response, "minimums", [])],
+            row_count=getattr(response, "row_count", 0),
+            kind=str(getattr(response, "kind", "") or ""),
+        )

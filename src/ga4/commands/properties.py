@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, PropertyNotFoundError, ValidationError
 from ga4.models.property import Property
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 properties_app = typer.Typer(name="properties", help="Manage GA4 properties.")
 
@@ -73,9 +73,10 @@ def properties_list(
             )
             for p in pager
         ]
-        rows = [_property_to_dict(p) for p in props]
-        columns = ["Property ID", "Name", "Time Zone", "Currency"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(props)
+        else:
+            result = render([_property_to_dict(p) for p in props], format, ["Property ID", "Name", "Time Zone", "Currency"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:
@@ -128,9 +129,10 @@ def properties_get(
             update_time=str(p.update_time) if p.update_time else None,
             parent=p.parent or None,
         )
-        rows = [_property_to_dict(prop)]
-        columns = ["Property ID", "Name", "Time Zone", "Currency", "Industry", "Parent", "Created"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_item(prop)
+        else:
+            result = render([_property_to_dict(prop)], format, ["Property ID", "Name", "Time Zone", "Currency", "Industry", "Parent", "Created"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

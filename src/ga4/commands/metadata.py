@@ -10,11 +10,14 @@ from ga4.auth import build_data_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
 from ga4.models.metadata import (
+    CompatibilityResponse,
     CompatibilityStatus,
+    DimensionCompatibility,
     DimensionMetadata,
+    MetricCompatibility,
     MetricMetadata,
 )
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 metadata_app = typer.Typer(name="metadata", help="Retrieve GA4 dimensions and metrics metadata.")
 
@@ -77,18 +80,14 @@ def metadata_dimensions(
                 or term in d.description.lower()
             ]
 
-        rows = [
-            {
-                "API Name": d.api_name,
-                "UI Name": d.ui_name,
-                "Category": d.category or "",
-                "Custom": str(d.custom_definition),
-                "Description": d.description,
-            }
-            for d in dims
-        ]
-        columns = ["API Name", "UI Name", "Category", "Custom", "Description"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(dims)
+        else:
+            result = render(
+                [{"API Name": d.api_name, "UI Name": d.ui_name, "Category": d.category or "", "Custom": str(d.custom_definition), "Description": d.description} for d in dims],
+                format,
+                ["API Name", "UI Name", "Category", "Custom", "Description"],
+            )
         if output:
             output.write_text(result, encoding="utf-8")
         else:
@@ -170,19 +169,14 @@ def metadata_metrics(
                 or term in m.description.lower()
             ]
 
-        rows = [
-            {
-                "API Name": m.api_name,
-                "UI Name": m.ui_name,
-                "Category": m.category or "",
-                "Type": m.type_ or "",
-                "Custom": str(m.custom_definition),
-                "Description": m.description,
-            }
-            for m in mets
-        ]
-        columns = ["API Name", "UI Name", "Category", "Type", "Custom", "Description"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(mets)
+        else:
+            result = render(
+                [{"API Name": m.api_name, "UI Name": m.ui_name, "Category": m.category or "", "Type": m.type_ or "", "Custom": str(m.custom_definition), "Description": m.description} for m in mets],
+                format,
+                ["API Name", "UI Name", "Category", "Type", "Custom", "Description"],
+            )
         if output:
             output.write_text(result, encoding="utf-8")
         else:
@@ -265,42 +259,64 @@ def metadata_compatibility(
         client = build_data_client(config)
         response = client.check_compatibility(request=api_request)
 
-        rows: list[dict[str, str]] = []
+        def _compat_status(raw: object) -> CompatibilityStatus:
+            try:
+                return CompatibilityStatus(str(raw)) if raw else CompatibilityStatus.COMPATIBILITY_UNSPECIFIED
+            except ValueError:
+                return CompatibilityStatus.COMPATIBILITY_UNSPECIFIED
 
-        for dc in getattr(response, "dimension_compatibilities", []):
-            dim_meta = dc.dimension_metadata
-            compat = str(getattr(dc, "compatibility", "COMPATIBILITY_UNSPECIFIED"))
-            if filter_compat == "compatible" and compat != "COMPATIBLE":
-                continue
-            if filter_compat == "incompatible" and compat != "INCOMPATIBLE":
-                continue
-            rows.append(
-                {
-                    "Type": "dimension",
-                    "API Name": getattr(dim_meta, "api_name", ""),
-                    "UI Name": getattr(dim_meta, "ui_name", ""),
-                    "Compatibility": compat,
-                }
+        def _include(compat: CompatibilityStatus) -> bool:
+            if filter_compat == "compatible":
+                return compat == CompatibilityStatus.COMPATIBLE
+            if filter_compat == "incompatible":
+                return compat == CompatibilityStatus.INCOMPATIBLE
+            return True
+
+        all_dim_compat = [
+            DimensionCompatibility(
+                dimension_metadata=DimensionMetadata(
+                    api_name=getattr(dc.dimension_metadata, "api_name", ""),
+                    ui_name=getattr(dc.dimension_metadata, "ui_name", ""),
+                    description=getattr(dc.dimension_metadata, "description", ""),
+                    deprecated_api_names=list(getattr(dc.dimension_metadata, "deprecated_api_names", [])),
+                    custom_definition=bool(getattr(dc.dimension_metadata, "custom_definition", False)),
+                    category=getattr(dc.dimension_metadata, "category", None) or None,
+                ),
+                compatibility=_compat_status(getattr(dc, "compatibility", None)),
             )
-
-        for mc in getattr(response, "metric_compatibilities", []):
-            met_meta = mc.metric_metadata
-            compat = str(getattr(mc, "compatibility", "COMPATIBILITY_UNSPECIFIED"))
-            if filter_compat == "compatible" and compat != "COMPATIBLE":
-                continue
-            if filter_compat == "incompatible" and compat != "INCOMPATIBLE":
-                continue
-            rows.append(
-                {
-                    "Type": "metric",
-                    "API Name": getattr(met_meta, "api_name", ""),
-                    "UI Name": getattr(met_meta, "ui_name", ""),
-                    "Compatibility": compat,
-                }
+            for dc in getattr(response, "dimension_compatibilities", [])
+        ]
+        all_met_compat = [
+            MetricCompatibility(
+                metric_metadata=MetricMetadata(
+                    api_name=getattr(mc.metric_metadata, "api_name", ""),
+                    ui_name=getattr(mc.metric_metadata, "ui_name", ""),
+                    description=getattr(mc.metric_metadata, "description", ""),
+                    type_=str(getattr(mc.metric_metadata, "type_", None) or getattr(mc.metric_metadata, "type", None)) or None,
+                    expression=getattr(mc.metric_metadata, "expression", None) or None,
+                    deprecated_api_names=list(getattr(mc.metric_metadata, "deprecated_api_names", [])),
+                    custom_definition=bool(getattr(mc.metric_metadata, "custom_definition", False)),
+                    category=getattr(mc.metric_metadata, "category", None) or None,
+                ),
+                compatibility=_compat_status(getattr(mc, "compatibility", None)),
             )
+            for mc in getattr(response, "metric_compatibilities", [])
+        ]
 
-        columns = ["Type", "API Name", "UI Name", "Compatibility"]
-        result = render(rows, format, columns)
+        compat_response = CompatibilityResponse(
+            dimension_compatibilities=[dc for dc in all_dim_compat if _include(dc.compatibility)],
+            metric_compatibilities=[mc for mc in all_met_compat if _include(mc.compatibility)],
+        )
+
+        if format == OutputFormat.JSON:
+            result = render_json_item(compat_response)
+        else:
+            rows: list[dict[str, str]] = []
+            for dc in compat_response.dimension_compatibilities:
+                rows.append({"Type": "dimension", "API Name": dc.dimension_metadata.api_name, "UI Name": dc.dimension_metadata.ui_name, "Compatibility": dc.compatibility.value})
+            for mc in compat_response.metric_compatibilities:
+                rows.append({"Type": "metric", "API Name": mc.metric_metadata.api_name, "UI Name": mc.metric_metadata.ui_name, "Compatibility": mc.compatibility.value})
+            result = render(rows, format, ["Type", "API Name", "UI Name", "Compatibility"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

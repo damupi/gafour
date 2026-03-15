@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
 from ga4.models.key_event import CountingMethod, KeyEvent
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_list
 
 key_events_app = typer.Typer(name="key-events", help="Manage GA4 key events.")
 
@@ -64,9 +64,10 @@ def key_events_list(
                 )
             )
 
-        rows = [_key_event_to_dict(e) for e in events]
-        columns = ["Event Name", "Counting Method", "Custom", "Deletable", "Created"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(events)
+        else:
+            result = render([_key_event_to_dict(e) for e in events], format, ["Event Name", "Counting Method", "Custom", "Deletable", "Created"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

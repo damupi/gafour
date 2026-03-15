@@ -7,10 +7,12 @@ import sys
 from enum import Enum
 from typing import Any
 
+from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 
 from ga4.errors import GA4CLIError
+from ga4.models.report import ReportResponse
 
 _stderr_console = Console(stderr=True)
 _stdout_console = Console()
@@ -119,6 +121,26 @@ def print_error(error: GA4CLIError) -> None:
         _stderr_console.print(f"[yellow]  {error.hint}[/yellow]")
     if error.recovery_command:
         _stderr_console.print(f"[dim]  Try:[/dim] [cyan]{error.recovery_command}[/cyan]")
+
+
+def render_json_item(item: BaseModel) -> str:
+    """Serialize a single Pydantic model as indented JSON."""
+    return item.model_dump_json(indent=2)
+
+
+def render_json_list(items: list[BaseModel]) -> str:
+    """Serialize a list of Pydantic models as indented JSON."""
+    return json.dumps([item.model_dump(mode="json") for item in items], indent=2)
+
+
+def render_report(report: ReportResponse) -> str:
+    """Serialize a ReportResponse as indented JSON.
+
+    Report commands always output JSON — the structured response is designed
+    for agent/programmatic consumption and does not have a meaningful
+    table or CSV representation.
+    """
+    return report.model_dump_json(indent=2)
 
 
 def print_success(message: str) -> None:
