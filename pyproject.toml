@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ga4x"
-version = "0.1.0"
+version = "1.0.0"
 description = "A comprehensive Google Analytics 4 CLI"
 readme = "README.md"
 license = { text = "MIT" }
