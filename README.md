@@ -206,9 +206,27 @@ ga4 reports run \
   --dimensions date,country,deviceCategory \
   --order-by sessions:desc \
   --limit 100 \
-  --format csv \
-  --output report.csv
+  --filter 'country = "Spain" AND NOT deviceCategory = "tablet"' \
+  --output report.json
 ```
+
+#### Filter DSL
+
+`--filter` and `--metric-filter` accept a DSL expression:
+
+| Operator | Applies to | Example |
+|----------|-----------|---------|
+| `=` | string / number | `country = "Spain"` |
+| `!=` | string / number | `deviceCategory != "tablet"` |
+| `beginsWith` | string | `pagePath beginsWith "/"` |
+| `endsWith` | string | `pagePath endsWith ".html"` |
+| `contains` | string | `pageTitle contains "Blog"` |
+| `matches` | string | `pagePath matches "^/blog/.*"` |
+| `<` `<=` `>` `>=` | number | `sessions > 100` |
+| `AND` / `OR` / `NOT` | — | `country = "Spain" AND NOT deviceCategory = "tablet"` |
+| `(...)` | — | `(country = "Spain" OR country = "France") AND sessions > 100` |
+
+`AND` binds tighter than `OR`. Use parentheses to override.
 
 ### Realtime
 
@@ -290,7 +308,9 @@ ga4 config unset <key>                     # reset a config value to default
 
 ## Output Formats
 
-All `list`, `get`, and `run` commands support `--format` and `--output`:
+**`reports run` and `realtime run`** always output JSON (structured for agent/programmatic consumption).
+
+All other commands (`accounts`, `properties`, `datastreams`, etc.) support `--format` and `--output`:
 
 ```bash
 # Human-readable table (default)
@@ -299,8 +319,8 @@ ga4 accounts list --format table
 # Machine-readable JSON
 ga4 accounts list --format json
 
-# CSV for spreadsheets or data pipelines
-ga4 reports run ... --format csv --output report.csv
+# CSV for spreadsheets
+ga4 accounts list --format csv --output accounts.csv
 ```
 
 ---

@@ -88,7 +88,24 @@ def reports_run(
     ] = None,
     filter_expr: Annotated[
         Optional[str],
-        typer.Option("--filter", help="Dimension filter expression."),
+        typer.Option(
+            "--filter",
+            help=(
+                "Dimension filter DSL. Supports: = != beginsWith endsWith contains matches "
+                "< <= > >= AND OR NOT (...). "
+                'Example: \'pagePath beginsWith "/" AND NOT deviceCategory = "tablet"\''
+            ),
+        ),
+    ] = None,
+    metric_filter_expr: Annotated[
+        Optional[str],
+        typer.Option(
+            "--metric-filter",
+            help=(
+                "Metric filter DSL. Same syntax as --filter but applied to metric values. "
+                "Example: 'sessions > 100'"
+            ),
+        ),
     ] = None,
     order_by: Annotated[
         Optional[list[str]],
@@ -135,13 +152,43 @@ def reports_run(
             print_error(err)
             raise typer.Exit(err.exit_code)
 
+        from ga4.filters import parse_filter_expression
+
+        dim_filter = None
+        if filter_expr:
+            try:
+                dim_filter = parse_filter_expression(filter_expr)
+            except ValueError as exc:
+                err = ValidationError(
+                    message=f"Invalid --filter expression: {exc}",
+                    hint=(
+                        'Example: \'pagePath beginsWith "/" AND country = "Spain" '
+                        'AND NOT deviceCategory = "tablet"\''
+                    ),
+                )
+                print_error(err)
+                raise typer.Exit(err.exit_code)
+
+        met_filter = None
+        if metric_filter_expr:
+            try:
+                met_filter = parse_filter_expression(metric_filter_expr)
+            except ValueError as exc:
+                err = ValidationError(
+                    message=f"Invalid --metric-filter expression: {exc}",
+                    hint="Example: 'sessions > 100'",
+                )
+                print_error(err)
+                raise typer.Exit(err.exit_code)
+
         req = ReportRequest(
             property_id=effective_property_id,
             metrics=metrics_list,
             start_date=start_date,
             end_date=end_date,
             dimensions=dimensions_list,
-            dimension_filter=filter_expr,
+            dimension_filter=dim_filter,
+            metric_filter=met_filter,
             order_bys=order_by_list,
             limit=limit,
             offset=offset,
@@ -155,11 +202,23 @@ def reports_run(
             RunReportRequest,
         )
 
+        from ga4.filters import filter_expression_to_proto
+
         api_request = RunReportRequest(
             property=f"properties/{req.property_id}",
             dimensions=[Dimension(name=d) for d in req.dimensions],
             metrics=[Metric(name=m) for m in req.metrics],
             date_ranges=[DateRange(start_date=req.start_date, end_date=req.end_date)],
+            dimension_filter=(
+                filter_expression_to_proto(req.dimension_filter)
+                if req.dimension_filter
+                else None
+            ),
+            metric_filter=(
+                filter_expression_to_proto(req.metric_filter)
+                if req.metric_filter
+                else None
+            ),
             order_bys=_parse_order_bys(req.order_bys),
             limit=req.limit,
             offset=req.offset,

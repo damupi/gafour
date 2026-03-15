@@ -35,7 +35,8 @@ ga4 reports run [flags]
 | `--dimensions`, `-d` | *(none)* | Dimension API names. Repeatable or comma-separated. |
 | `--start-date` | `28daysAgo` | Start date: `YYYY-MM-DD` or relative (e.g. `7daysAgo`). |
 | `--end-date` | `today` | End date: `YYYY-MM-DD` or `today`. |
-| `--filter` | *(none)* | Dimension filter expression string. |
+| `--filter` | *(none)* | Dimension filter DSL (see **Filter syntax** below). |
+| `--metric-filter` | *(none)* | Metric filter DSL — same syntax as `--filter`. |
 | `--order-by` | *(none)* | Order-by expression: `name:asc` or `name:desc`. Repeatable. |
 | `--limit` | `10000` | Maximum rows to return (1–250000). |
 | `--offset` | `0` | Zero-based row offset for pagination. |
@@ -66,6 +67,50 @@ Output always mirrors the [RunReportResponse](https://developers.google.com/anal
 `dimension_headers[i]` names the dimension at `rows[n].dimension_values[i]`.
 `metric_headers[j]` names the metric at `rows[n].metric_values[j]`.
 `row_count` is the total matching rows — may exceed `len(rows)` when paginating.
+
+## Filter syntax
+
+Both `--filter` and `--metric-filter` accept the same DSL:
+
+### Comparison operators
+
+| Operator | Applies to | Meaning |
+|----------|-----------|---------|
+| `=` | strings / numbers | exact match / equal |
+| `!=` | strings / numbers | not equal |
+| `beginsWith` | strings | prefix match (case-insensitive) |
+| `endsWith` | strings | suffix match (case-insensitive) |
+| `contains` | strings | substring match (case-insensitive) |
+| `matches` | strings | full regular expression |
+| `<` `<=` `>` `>=` | numbers | numeric comparison |
+
+### Connectives
+
+| Operator | Precedence | Meaning |
+|----------|-----------|---------|
+| `NOT` | highest | negate the following expression |
+| `AND` | middle | conjunction (evaluated before OR) |
+| `OR` | lowest | disjunction |
+| `(...)` | — | grouping |
+
+### Examples
+
+```bash
+# Single dimension filter
+--filter 'pagePath beginsWith "/"'
+
+# Compound filter: AND
+--filter 'country = "Spain" AND NOT deviceCategory = "tablet"'
+
+# Compound filter: three conditions
+--filter 'pagePath beginsWith "/" AND country = "Spain" AND NOT deviceCategory = "tablet"'
+
+# Grouping to override precedence
+--filter '(country = "Spain" OR country = "France") AND sessions > 100'
+
+# Metric filter
+--metric-filter 'sessions > 100'
+```
 
 ## Examples
 

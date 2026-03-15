@@ -3,6 +3,64 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field
 
 
+# ---------------------------------------------------------------------------
+# Filter expression models — mirror GA4 FilterExpression / Filter protos.
+# These are proto-free Pydantic models; filters.py owns conversion to protos.
+# ---------------------------------------------------------------------------
+
+
+class StringFilter(BaseModel):
+    """Mirrors Filter.StringFilter."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    match_type: str  # EXACT | BEGINS_WITH | ENDS_WITH | CONTAINS | FULL_REGEXP
+    value: str
+    case_sensitive: bool = False
+
+
+class NumericValue(BaseModel):
+    """Mirrors google.analytics.data_v1beta.types.NumericValue."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    double_value: float
+
+
+class NumericFilter(BaseModel):
+    """Mirrors Filter.NumericFilter."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    operation: str  # EQUAL | LESS_THAN | LESS_THAN_OR_EQUAL | GREATER_THAN | GREATER_THAN_OR_EQUAL
+    value: NumericValue
+
+
+class FilterField(BaseModel):
+    """Mirrors a GA4 Filter (leaf node) — a single field comparison."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    field_name: str
+    string_filter: StringFilter | None = None
+    numeric_filter: NumericFilter | None = None
+
+
+class FilterExpression(BaseModel):
+    """Mirrors GA4 FilterExpression — a tree node that can be AND / OR / NOT / leaf."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    and_group: list[FilterExpression] | None = None
+    or_group: list[FilterExpression] | None = None
+    not_expression: FilterExpression | None = None
+    filter: FilterField | None = None
+
+
+# Required for self-referential model
+FilterExpression.model_rebuild()
+
+
 class DateRange(BaseModel):
     """A date range for use in report requests."""
 
@@ -64,8 +122,8 @@ class ReportRequest(BaseModel):
     start_date: str
     end_date: str
     dimensions: list[str] = []
-    dimension_filter: str | None = None
-    metric_filter: str | None = None
+    dimension_filter: FilterExpression | None = None
+    metric_filter: FilterExpression | None = None
     order_bys: list[str] = []
     limit: int = Field(default=10000, ge=1, le=250000)
     offset: int = Field(default=0, ge=0)

@@ -5,11 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Purpose
 
 A GA4 CLI tool that improves on existing options by offering:
-- Advanced filtering (dimensions, metrics, date ranges)
+- Advanced filtering with a DSL (`--filter`, `--metric-filter`) supporting AND/OR/NOT/grouping
 - Metadata retrieval (available dimensions/metrics per property)
 - Compatibility checking (which dimensions/metrics can be queried together)
 - Account summaries (list accounts, properties, data streams)
-- Report running with flexible output formats
+- Report running with JSON output aligned to the GA4 RunReportResponse structure
 
 ## Relevant Google APIs
 
@@ -106,6 +106,18 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 * **Consistency:** If multiple changes are made, use the highest impact prefix (e.g., if a fix and a feature are combined, use `feat:`).
 * **Conflict Resolution:** If a Release PR has a merge conflict, notify the user immediately; do not attempt to force-push to the release branch unless specifically instructed.
 
-## Architecture Notes (to be added)
+## Architecture Notes
 
-Document command structure, auth flow, and output formatting conventions here once implemented.
+### Output conventions
+- `reports run` and `realtime run` — **JSON only**, always aligned to the GA4 `RunReportResponse` / `RunRealtimeReportResponse` proto structure.
+- All admin commands (`accounts`, `properties`, `datastreams`, etc.) — support `--format table|json|csv` (table is the default).
+
+### Filter DSL (`src/ga4/filters.py`)
+- `parse_filter_expression(str) -> FilterExpression` — converts the `--filter` / `--metric-filter` string into a `FilterExpression` Pydantic model.
+- `filter_expression_to_proto(FilterExpression) -> ProtoFilterExpression` — converts the Pydantic model to the GA4 proto required by the API client.
+- `models/report.py` is proto-free; all proto imports live in `filters.py` and command handlers.
+
+### Pydantic models (`src/ga4/models/`)
+- All GA4 request inputs and responses are Pydantic models.
+- `FilterExpression`, `FilterField`, `StringFilter`, `NumericFilter`, `NumericValue` mirror the GA4 FilterExpression proto hierarchy.
+- `ReportRequest.dimension_filter` and `metric_filter` are typed `FilterExpression | None`, not `str`.
