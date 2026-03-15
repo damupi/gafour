@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
 from ga4.models.event import EventCreateRule
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_list
 
 events_app = typer.Typer(name="events", help="Manage GA4 event create rules.")
 
@@ -65,9 +65,10 @@ def events_list(
                 )
             )
 
-        rows = [_rule_to_dict(rule) for rule in rules]
-        columns = ["Rule ID", "Destination Event", "Source Copy Params", "Conditions Count"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(rules)
+        else:
+            result = render([_rule_to_dict(rule) for rule in rules], format, ["Rule ID", "Destination Event", "Source Copy Params", "Conditions Count"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

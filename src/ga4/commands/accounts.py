@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AccountNotFoundError, AuthError, GA4CLIError, NetworkError
 from ga4.models.account import Account
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 accounts_app = typer.Typer(name="accounts", help="Manage GA4 accounts.")
 
@@ -51,9 +51,11 @@ def accounts_list(
             )
             for a in pager
         ]
-        rows = [_account_to_dict(a) for a in accounts]
-        columns = ["Account ID", "Name", "Region"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(accounts)
+        else:
+            rows = [_account_to_dict(a) for a in accounts]
+            result = render(rows, format, ["Account ID", "Name", "Region"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:
@@ -112,9 +114,10 @@ def accounts_get(
             create_time=str(a.create_time) if a.create_time else None,
             update_time=str(a.update_time) if a.update_time else None,
         )
-        rows = [_account_to_dict(account)]
-        columns = ["Account ID", "Name", "Region", "Created"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_item(account)
+        else:
+            result = render([_account_to_dict(account)], format, ["Account ID", "Name", "Region", "Created"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

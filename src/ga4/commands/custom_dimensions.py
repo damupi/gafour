@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
 from ga4.models.custom_dimension import CustomDimension, DimensionScope
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_list
 
 custom_dimensions_app = typer.Typer(
     name="custom-dimensions", help="Manage GA4 custom dimensions."
@@ -68,9 +68,10 @@ def custom_dimensions_list(
                 )
             )
 
-        rows = [_custom_dim_to_dict(d) for d in dims]
-        columns = ["Parameter Name", "Display Name", "Scope", "Description"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(dims)
+        else:
+            result = render([_custom_dim_to_dict(d) for d in dims], format, ["Parameter Name", "Display Name", "Scope", "Description"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

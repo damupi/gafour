@@ -70,8 +70,8 @@ class TestAccountsList:
         parsed = json.loads(result.output)
         assert isinstance(parsed, list)
         assert len(parsed) == 1
-        assert parsed[0]["Account ID"] == "333"
-        assert parsed[0]["Name"] == "Gamma Inc"
+        assert parsed[0]["name"] == "accounts/333"
+        assert parsed[0]["display_name"] == "Gamma Inc"
 
     def test_accounts_list_empty(self, typer_runner: CliRunner) -> None:
         """Empty account list renders no-results placeholder."""
