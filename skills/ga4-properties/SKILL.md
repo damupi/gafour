@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4x"]
-    cliHelp: "ga4x properties --help"
+      bins: ["gafour"]
+    cliHelp: "gafour properties --help"
 ---
 
 # ga4 properties
 
-> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
+> **PREREQUISITE:** The `gafour` CLI must be installed and authenticated before using this skill.
+> - Installation: see the [Installation](https://github.com/damupi/gafour#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/gafour#authentication) section. Run `gafour auth status` to verify.
 
 ```bash
-ga4x properties <command> [flags]
+gafour properties <command> [flags]
 ```
 
 ## Commands
@@ -64,8 +64,8 @@ The numeric property ID is the trailing segment of `name` (e.g. `"properties/123
 
 ```bash
 # List properties for account 123456
-ga4x properties list --account-id 123456
+gafour properties list --account-id 123456
 
 # Get details for a specific property
-ga4x properties get 123456789
+gafour properties get 123456789
 ```

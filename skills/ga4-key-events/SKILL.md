@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4x"]
-    cliHelp: "ga4x key-events --help"
+      bins: ["gafour"]
+    cliHelp: "gafour key-events --help"
 ---
 
 # ga4 key-events
 
-> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
+> **PREREQUISITE:** The `gafour` CLI must be installed and authenticated before using this skill.
+> - Installation: see the [Installation](https://github.com/damupi/gafour#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/gafour#authentication) section. Run `gafour auth status` to verify.
 
 ```bash
-ga4x key-events <command> <property-id> [flags]
+gafour key-events <command> <property-id> [flags]
 ```
 
 ## Commands
@@ -54,5 +54,5 @@ ga4x key-events <command> <property-id> [flags]
 
 ```bash
 # List all key events for a property
-ga4x key-events list 123456789
+gafour key-events list 123456789
 ```

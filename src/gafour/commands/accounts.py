@@ -6,11 +6,11 @@ from typing import Annotated, Optional
 import typer
 from google.api_core import exceptions as google_exceptions  # type: ignore[import-untyped]
 
-from ga4x.auth import build_admin_client
-from ga4x.config import load_config
-from ga4x.errors import AccountNotFoundError, AuthError, GA4CLIError, NetworkError
-from ga4x.models.account import Account
-from ga4x.output import OutputFormat, print_error, render, render_json_item, render_json_list
+from gafour.auth import build_admin_client
+from gafour.config import load_config
+from gafour.errors import AccountNotFoundError, AuthError, GA4CLIError, NetworkError
+from gafour.models.account import Account
+from gafour.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 accounts_app = typer.Typer(name="accounts", help="Manage GA4 accounts.")
 
@@ -76,7 +76,7 @@ def accounts_list(
         print_error(err)
         raise typer.Exit(err.exit_code)
     except google_exceptions.InvalidArgument as exc:
-        from ga4x.errors import ValidationError
+        from gafour.errors import ValidationError
 
         err = ValidationError(message=f"Invalid request: {exc}")
         print_error(err)
@@ -138,7 +138,7 @@ def accounts_get(
         print_error(err)
         raise typer.Exit(err.exit_code)
     except google_exceptions.InvalidArgument as exc:
-        from ga4x.errors import ValidationError
+        from gafour.errors import ValidationError
 
         err = ValidationError(message=f"Invalid account ID '{account_id}': {exc}")
         print_error(err)

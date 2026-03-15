@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4x"]
-    cliHelp: "ga4x accounts --help"
+      bins: ["gafour"]
+    cliHelp: "gafour accounts --help"
 ---
 
 # ga4 accounts
 
-> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
+> **PREREQUISITE:** The `gafour` CLI must be installed and authenticated before using this skill.
+> - Installation: see the [Installation](https://github.com/damupi/gafour#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/gafour#authentication) section. Run `gafour auth status` to verify.
 
 ```bash
-ga4x accounts <command> [flags]
+gafour accounts <command> [flags]
 ```
 
 ## Commands
@@ -68,11 +68,11 @@ The numeric account ID is the trailing segment of `name` (e.g. `"accounts/123456
 
 ```bash
 # List all accessible accounts
-ga4x accounts list
+gafour accounts list
 
 # Get details for a specific account
-ga4x accounts get 123456
+gafour accounts get 123456
 
 # List accounts as a table
-ga4x accounts list --format table
+gafour accounts list --format table
 ```

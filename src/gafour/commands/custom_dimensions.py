@@ -6,11 +6,11 @@ from typing import Annotated, Optional
 import typer
 from google.api_core import exceptions as google_exceptions  # type: ignore[import-untyped]
 
-from ga4x.auth import build_admin_client
-from ga4x.config import load_config
-from ga4x.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from ga4x.models.custom_dimension import CustomDimension, DimensionScope
-from ga4x.output import OutputFormat, print_error, render, render_json_list
+from gafour.auth import build_admin_client
+from gafour.config import load_config
+from gafour.errors import AuthError, GA4CLIError, NetworkError, ValidationError
+from gafour.models.custom_dimension import CustomDimension, DimensionScope
+from gafour.output import OutputFormat, print_error, render, render_json_list
 
 custom_dimensions_app = typer.Typer(
     name="custom-dimensions", help="Manage GA4 custom dimensions."
@@ -88,7 +88,7 @@ def custom_dimensions_list(
         print_error(err)
         raise typer.Exit(err.exit_code)
     except google_exceptions.NotFound as exc:
-        from ga4x.errors import PropertyNotFoundError
+        from gafour.errors import PropertyNotFoundError
 
         err = PropertyNotFoundError(property_id=property_id)
         print_error(err)

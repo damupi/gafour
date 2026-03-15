@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4x"]
-    cliHelp: "ga4x custom-metrics --help"
+      bins: ["gafour"]
+    cliHelp: "gafour custom-metrics --help"
 ---
 
 # ga4 custom-metrics
 
-> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
+> **PREREQUISITE:** The `gafour` CLI must be installed and authenticated before using this skill.
+> - Installation: see the [Installation](https://github.com/damupi/gafour#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/gafour#authentication) section. Run `gafour auth status` to verify.
 
 ```bash
-ga4x custom-metrics <command> <property-id> [flags]
+gafour custom-metrics <command> <property-id> [flags]
 ```
 
 ## Commands
@@ -56,5 +56,5 @@ ga4x custom-metrics <command> <property-id> [flags]
 
 ```bash
 # List all custom metrics for a property
-ga4x custom-metrics list 123456789
+gafour custom-metrics list 123456789
 ```

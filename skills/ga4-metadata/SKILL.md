@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4x"]
-    cliHelp: "ga4x metadata --help"
+      bins: ["gafour"]
+    cliHelp: "gafour metadata --help"
 ---
 
 # ga4 metadata
 
-> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
-> - Installation: see the [Installation](https://github.com/damupi/ga4x#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4x#authentication) section. Run `ga4x auth status` to verify.
+> **PREREQUISITE:** The `gafour` CLI must be installed and authenticated before using this skill.
+> - Installation: see the [Installation](https://github.com/damupi/gafour#installation) section of the README.
+> - Authentication: see the [Authentication](https://github.com/damupi/gafour#authentication) section. Run `gafour auth status` to verify.
 
 ```bash
-ga4x metadata <command> [flags]
+gafour metadata <command> [flags]
 ```
 
 ## Commands
@@ -108,22 +108,22 @@ ga4x metadata <command> [flags]
 
 ```bash
 # List all dimensions for a property
-ga4x metadata dimensions --property-id 123456789
+gafour metadata dimensions --property-id 123456789
 
 # Search for device-related dimensions
-ga4x metadata dimensions --property-id 123456789 --search device
+gafour metadata dimensions --property-id 123456789 --search device
 
 # Find revenue metrics
-ga4x metadata metrics --property-id 123456789 --search revenue
+gafour metadata metrics --property-id 123456789 --search revenue
 
 # Check if date + country + sessions + activeUsers can be queried together
-ga4x metadata compatibility \
+gafour metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics sessions,activeUsers
 
 # Show only incompatible combinations
-ga4x metadata compatibility \
+gafour metadata compatibility \
   --property-id 123456789 \
   --dimensions date,country \
   --metrics sessions,activeUsers \

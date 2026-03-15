@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from ga4x.filters import parse_filter_expression
-from ga4x.models.report import FilterExpression, FilterField, NumericFilter, StringFilter
+from gafour.filters import parse_filter_expression
+from gafour.models.report import FilterExpression, FilterField, NumericFilter, StringFilter
 
 
 # ---------------------------------------------------------------------------

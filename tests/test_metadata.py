@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from ga4x.cli import app
+from gafour.cli import app
 
 
 def _make_dimension_meta(
@@ -65,8 +65,8 @@ class TestMetadataDimensions:
         )
 
         with (
-            patch("ga4x.commands.metadata.load_config") as mock_cfg,
-            patch("ga4x.commands.metadata.build_data_client", return_value=mock_client),
+            patch("gafour.commands.metadata.load_config") as mock_cfg,
+            patch("gafour.commands.metadata.build_data_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -95,8 +95,8 @@ class TestMetadataDimensions:
         )
 
         with (
-            patch("ga4x.commands.metadata.load_config") as mock_cfg,
-            patch("ga4x.commands.metadata.build_data_client", return_value=mock_client),
+            patch("gafour.commands.metadata.load_config") as mock_cfg,
+            patch("gafour.commands.metadata.build_data_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -135,8 +135,8 @@ class TestMetadataMetrics:
         )
 
         with (
-            patch("ga4x.commands.metadata.load_config") as mock_cfg,
-            patch("ga4x.commands.metadata.build_data_client", return_value=mock_client),
+            patch("gafour.commands.metadata.load_config") as mock_cfg,
+            patch("gafour.commands.metadata.build_data_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -163,8 +163,8 @@ class TestMetadataMetrics:
         )
 
         with (
-            patch("ga4x.commands.metadata.load_config") as mock_cfg,
-            patch("ga4x.commands.metadata.build_data_client", return_value=mock_client),
+            patch("gafour.commands.metadata.load_config") as mock_cfg,
+            patch("gafour.commands.metadata.build_data_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -209,8 +209,8 @@ class TestMetadataCompatibility:
         mock_client.check_compatibility.return_value = compat_resp
 
         with (
-            patch("ga4x.commands.metadata.load_config") as mock_cfg,
-            patch("ga4x.commands.metadata.build_data_client", return_value=mock_client),
+            patch("gafour.commands.metadata.load_config") as mock_cfg,
+            patch("gafour.commands.metadata.build_data_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
@@ -249,8 +249,8 @@ class TestMetadataCompatibility:
         mock_client.check_compatibility.return_value = compat_resp
 
         with (
-            patch("ga4x.commands.metadata.load_config") as mock_cfg,
-            patch("ga4x.commands.metadata.build_data_client", return_value=mock_client),
+            patch("gafour.commands.metadata.load_config") as mock_cfg,
+            patch("gafour.commands.metadata.build_data_client", return_value=mock_client),
         ):
             mock_cfg.return_value = MagicMock(
                 auth_method="service-account",
