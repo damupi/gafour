@@ -253,10 +253,13 @@ def metadata_compatibility(
             Metric,
         )
 
+        dim_names = [d for raw in (dimensions or []) for d in raw.split(",") if d]
+        met_names = [m for raw in (metrics or []) for m in raw.split(",") if m]
+
         api_request = CheckCompatibilityRequest(
             property=f"properties/{effective_property_id}",
-            dimensions=[Dimension(name=d) for d in (dimensions or [])],
-            metrics=[Metric(name=m) for m in (metrics or [])],
+            dimensions=[Dimension(name=d) for d in dim_names],
+            metrics=[Metric(name=m) for m in met_names],
         )
 
         client = build_data_client(config)
