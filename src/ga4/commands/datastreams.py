@@ -10,7 +10,7 @@ from ga4.auth import build_admin_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
 from ga4.models.datastream import DataStream, WebStreamData
-from ga4.output import OutputFormat, print_error, render
+from ga4.output import OutputFormat, print_error, render, render_json_item, render_json_list
 
 datastreams_app = typer.Typer(name="datastreams", help="Manage GA4 data streams.")
 
@@ -73,9 +73,10 @@ def datastreams_list(
         client = build_admin_client(config)
         pager = client.list_data_streams(parent=f"properties/{property_id}")
         streams = [_parse_stream(s) for s in pager]
-        rows = [_stream_to_dict(s) for s in streams]
-        columns = ["Stream ID", "Name", "Type", "Measurement ID", "Default URI"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_list(streams)
+        else:
+            result = render([_stream_to_dict(s) for s in streams], format, ["Stream ID", "Name", "Type", "Measurement ID", "Default URI"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:
@@ -128,9 +129,10 @@ def datastreams_get(
             name=f"properties/{property_id}/dataStreams/{stream_id}"
         )
         stream = _parse_stream(s)
-        rows = [_stream_to_dict(stream)]
-        columns = ["Stream ID", "Name", "Type", "Measurement ID", "Default URI", "Created"]
-        result = render(rows, format, columns)
+        if format == OutputFormat.JSON:
+            result = render_json_item(stream)
+        else:
+            result = render([_stream_to_dict(stream)], format, ["Stream ID", "Name", "Type", "Measurement ID", "Default URI", "Created"])
         if output:
             output.write_text(result, encoding="utf-8")
         else:

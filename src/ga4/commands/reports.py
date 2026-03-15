@@ -9,8 +9,8 @@ from google.api_core import exceptions as google_exceptions  # type: ignore[impo
 from ga4.auth import build_data_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from ga4.models.report import ReportRequest, ReportResponse, ReportRow, DimensionValue, MetricValue
-from ga4.output import OutputFormat, print_error, render
+from ga4.models.report import ReportRequest, ReportResponse
+from ga4.output import print_error, render_report
 
 reports_app = typer.Typer(name="reports", help="Run GA4 Data API reports.")
 
@@ -63,24 +63,6 @@ def _parse_order_bys(order_bys: list[str]) -> list:  # type: ignore[type-arg]
     return result
 
 
-def _build_report_rows(
-    response: object,
-    dimensions: list[str],
-    metrics: list[str],
-) -> list[dict[str, str]]:
-    """Convert raw API response rows to flat dicts keyed by dimension/metric names."""
-    result: list[dict[str, str]] = []
-    for row in getattr(response, "rows", []):
-        record: dict[str, str] = {}
-        for i, dim in enumerate(dimensions):
-            dim_values = getattr(row, "dimension_values", [])
-            record[dim] = dim_values[i].value if i < len(dim_values) else ""
-        for j, met in enumerate(metrics):
-            met_values = getattr(row, "metric_values", [])
-            record[met] = met_values[j].value if j < len(met_values) else ""
-        result.append(record)
-    return result
-
 
 @reports_app.command("run")
 def reports_run(
@@ -120,10 +102,6 @@ def reports_run(
         int,
         typer.Option("--offset", help="Zero-based row offset for pagination."),
     ] = 0,
-    format: Annotated[
-        OutputFormat,
-        typer.Option("--format", "-f", help="Output format."),
-    ] = OutputFormat.JSON,
     output: Annotated[
         Optional[Path],
         typer.Option("--output", "-o", help="Write output to file."),
@@ -190,9 +168,8 @@ def reports_run(
         client = build_data_client(config)
         response = client.run_report(request=api_request)
 
-        rows = _build_report_rows(response, req.dimensions, req.metrics)
-        columns = req.dimensions + req.metrics
-        result = render(rows, format, columns if columns else None)
+        report = ReportResponse.from_api_response(response)
+        result = render_report(report)
         if output:
             output.write_text(result, encoding="utf-8")
         else:

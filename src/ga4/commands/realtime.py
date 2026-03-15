@@ -9,7 +9,8 @@ from google.api_core import exceptions as google_exceptions  # type: ignore[impo
 from ga4.auth import build_data_client
 from ga4.config import load_config
 from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from ga4.output import OutputFormat, print_error, render
+from ga4.models.report import ReportResponse
+from ga4.output import print_error, render_report
 
 realtime_app = typer.Typer(name="realtime", help="Run GA4 realtime reports.")
 
@@ -32,10 +33,6 @@ def realtime_run(
         int,
         typer.Option("--limit", help="Maximum number of rows."),
     ] = 10000,
-    format: Annotated[
-        OutputFormat,
-        typer.Option("--format", "-f", help="Output format."),
-    ] = OutputFormat.JSON,
     output: Annotated[
         Optional[Path],
         typer.Option("--output", "-o", help="Write output to file."),
@@ -73,19 +70,8 @@ def realtime_run(
         client = build_data_client(config)
         response = client.run_realtime_report(request=api_request)
 
-        rows: list[dict[str, str]] = []
-        for row in getattr(response, "rows", []):
-            record: dict[str, str] = {}
-            for i, dim in enumerate(effective_dimensions):
-                dim_values = getattr(row, "dimension_values", [])
-                record[dim] = dim_values[i].value if i < len(dim_values) else ""
-            for j, met in enumerate(effective_metrics):
-                met_values = getattr(row, "metric_values", [])
-                record[met] = met_values[j].value if j < len(met_values) else ""
-            rows.append(record)
-
-        columns = effective_dimensions + effective_metrics
-        result = render(rows, format, columns if columns else None)
+        report = ReportResponse.from_api_response(response)
+        result = render_report(report)
         if output:
             output.write_text(result, encoding="utf-8")
         else:
