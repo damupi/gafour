@@ -1,4 +1,4 @@
-# ga4-cli
+# ga4x
 
 A comprehensive command-line interface for Google Analytics 4 — run reports, inspect metadata, check dimension/metric compatibility, manage properties, and more.
 
@@ -32,20 +32,20 @@ A comprehensive command-line interface for Google Analytics 4 — run reports, i
 ### From PyPI (recommended)
 
 ```bash
-pip install ga4-cli
+pip install ga4x
 ```
 
 Or with `uv`:
 
 ```bash
-uv tool install ga4-cli
+uv tool install ga4x
 ```
 
 ### From source
 
 ```bash
 git clone https://github.com/damupi/ga4x.git
-cd ga4-cli
+cd ga4x
 pip install -e .
 ```
 
@@ -53,7 +53,7 @@ Or with `uv`:
 
 ```bash
 git clone https://github.com/damupi/ga4x.git
-cd ga4-cli
+cd ga4x
 uv sync
 uv run ga4x --help
 ```

@@ -89,10 +89,18 @@ This repository uses **Google's `release-please`** GitHub Action to automate ver
 ## 1. Commit Message Standard (Mandatory)
 All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification. This is the **only** way the system determines version bumps.
 
-* **`fix: ...`** -> Triggers a **patch** release (e.g., 1.0.0 to 1.0.1).
-* **`feat: ...`** -> Triggers a **minor** release (e.g., 1.0.0 to 1.1.0).
-* **`feat!: ...` or `fix!: ...`** -> Triggers a **major** (Breaking Change) release.
-* **`chore: ...`** or **`docs: ...`** -> Does not trigger a version bump.
+### Commit types
+
+| Type | Description | Version bump |
+|------|-------------|--------------|
+| `feat:` | A new feature | Minor (e.g., 1.0.0 → 1.1.0) |
+| `fix:` | A bug fix | Patch (e.g., 1.0.0 → 1.0.1) |
+| `docs:` | Documentation changes | None |
+| `style:` | Code style changes (formatting, indentation) | None |
+| `refactor:` | Code refactoring | None |
+| `test:` | Add or modify tests | None |
+| `chore:` | General chores or maintenance tasks | None |
+| `feat!:` / `fix!:` | Breaking change | Major (e.g., 1.0.0 → 2.0.0) |
 
 > **Note:** Always include a clear description in the commit message, as this text is automatically pulled into the `CHANGELOG.md`.
 
