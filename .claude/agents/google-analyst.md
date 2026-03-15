@@ -45,9 +45,31 @@ ga4 reports run \
   --dimensions <dim1,dim2> \
   --start-date <date> \
   --end-date <date> \
+  --filter '<dimension filter DSL>' \
+  --metric-filter '<metric filter DSL>' \
   --order-by <metric:desc> \
   --limit <n>
 ```
+
+#### Filter DSL
+
+Both `--filter` and `--metric-filter` use the same expression language:
+
+| Operator | Type | Example |
+|----------|------|---------|
+| `=` | string/number | `country = "Spain"` |
+| `!=` | string/number | `deviceCategory != "tablet"` |
+| `beginsWith` | string | `pagePath beginsWith "/"` |
+| `endsWith` | string | `pagePath endsWith ".html"` |
+| `contains` | string | `pageTitle contains "Blog"` |
+| `matches` | string | `pagePath matches "^/blog/.*"` |
+| `<` `<=` `>` `>=` | number | `sessions > 100` |
+| `AND` | — | `country = "Spain" AND NOT deviceCategory = "tablet"` |
+| `OR` | — | `sessionSource = "google" OR sessionSource = "bing"` |
+| `NOT` | — | `NOT deviceCategory = "tablet"` |
+| `(...)` | — | `(country = "Spain" OR country = "France") AND sessions > 100` |
+
+AND binds tighter than OR. Use parentheses to override.
 
 Response structure:
 ```json
