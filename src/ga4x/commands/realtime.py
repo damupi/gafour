@@ -6,11 +6,11 @@ from typing import Annotated, Optional
 import typer
 from google.api_core import exceptions as google_exceptions  # type: ignore[import-untyped]
 
-from ga4.auth import build_data_client
-from ga4.config import load_config
-from ga4.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from ga4.models.report import ReportResponse
-from ga4.output import print_error, render_report
+from ga4x.auth import build_data_client
+from ga4x.config import load_config
+from ga4x.errors import AuthError, GA4CLIError, NetworkError, ValidationError
+from ga4x.models.report import ReportResponse
+from ga4x.output import print_error, render_report
 
 realtime_app = typer.Typer(name="realtime", help="Run GA4 realtime reports.")
 

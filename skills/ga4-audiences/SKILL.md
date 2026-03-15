@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 audiences --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x audiences --help"
 ---
 
 # ga4 audiences
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 audiences <command> <property-id> [flags]
+ga4x audiences <command> <property-id> [flags]
 ```
 
 ## Commands
@@ -61,8 +61,8 @@ The numeric audience ID is the trailing segment of `name`.
 
 ```bash
 # List all audiences for a property
-ga4 audiences list 123456789
+ga4x audiences list 123456789
 
 # Get a specific audience
-ga4 audiences get 123456789 987654
+ga4x audiences get 123456789 987654
 ```

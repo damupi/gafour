@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from ga4.output import OutputFormat, render
+from ga4x.output import OutputFormat, render
 
 
 SAMPLE_DATA = [

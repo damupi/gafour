@@ -7,8 +7,8 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from ga4.cli import app
-from ga4.config import Config
+from ga4x.cli import app
+from ga4x.config import Config
 
 
 @pytest.fixture()
@@ -20,7 +20,7 @@ def tmp_config(tmp_path: Path) -> Path:
 class TestConfigShow:
     def test_show_default_config(self, typer_runner: CliRunner) -> None:
         """config show prints valid JSON with default values."""
-        with patch("ga4.commands.config.load_config", return_value=Config()):
+        with patch("ga4x.commands.config.load_config", return_value=Config()):
             result = typer_runner.invoke(app, ["config", "show"])
         assert result.exit_code == 0
         data = json.loads(result.output)
@@ -35,7 +35,7 @@ class TestConfigShow:
             default_property_id="999",
             output_format="csv",
         )
-        with patch("ga4.commands.config.load_config", return_value=cfg):
+        with patch("ga4x.commands.config.load_config", return_value=cfg):
             result = typer_runner.invoke(app, ["config", "show"])
         assert result.exit_code == 0
         data = json.loads(result.output)
@@ -49,8 +49,8 @@ class TestConfigSet:
     def test_set_valid_key(self, typer_runner: CliRunner) -> None:
         """config set saves a valid key and prints success."""
         with (
-            patch("ga4.commands.config.load_config", return_value=Config()),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=Config()),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             result = typer_runner.invoke(app, ["config", "set", "output_format", "csv"])
         assert result.exit_code == 0
@@ -61,8 +61,8 @@ class TestConfigSet:
     def test_set_default_property_id(self, typer_runner: CliRunner) -> None:
         """config set persists default_property_id correctly."""
         with (
-            patch("ga4.commands.config.load_config", return_value=Config()),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=Config()),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             result = typer_runner.invoke(
                 app, ["config", "set", "default_property_id", "123456"]
@@ -82,8 +82,8 @@ class TestConfigUnset:
         """config unset resets a key to its default."""
         cfg = Config(default_property_id="123456")
         with (
-            patch("ga4.commands.config.load_config", return_value=cfg),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=cfg),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             result = typer_runner.invoke(app, ["config", "unset", "default_property_id"])
         assert result.exit_code == 0
@@ -94,8 +94,8 @@ class TestConfigUnset:
         """config unset output_format resets to 'json'."""
         cfg = Config(output_format="csv")
         with (
-            patch("ga4.commands.config.load_config", return_value=cfg),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=cfg),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             result = typer_runner.invoke(app, ["config", "unset", "output_format"])
         assert result.exit_code == 0
@@ -115,8 +115,8 @@ class TestConfigInit:
         fake_key.write_text("{}", encoding="utf-8")
 
         with (
-            patch("ga4.commands.config.load_config", return_value=Config()),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=Config()),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             result = typer_runner.invoke(
                 app,
@@ -131,8 +131,8 @@ class TestConfigInit:
     def test_init_token(self, typer_runner: CliRunner) -> None:
         """config init with token method saves access_token."""
         with (
-            patch("ga4.commands.config.load_config", return_value=Config()),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=Config()),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             result = typer_runner.invoke(
                 app,
@@ -150,8 +150,8 @@ class TestConfigInit:
         """config init with oauth2 warns and keeps existing method."""
         existing = Config(auth_method="service-account", key_file="/existing/key.json")
         with (
-            patch("ga4.commands.config.load_config", return_value=existing),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=existing),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             result = typer_runner.invoke(
                 app,
@@ -172,8 +172,8 @@ class TestConfigInit:
             output_format="csv",
         )
         with (
-            patch("ga4.commands.config.load_config", return_value=existing),
-            patch("ga4.commands.config.save_config") as mock_save,
+            patch("ga4x.commands.config.load_config", return_value=existing),
+            patch("ga4x.commands.config.save_config") as mock_save,
         ):
             # Press Enter on every prompt to accept existing defaults
             result = typer_runner.invoke(

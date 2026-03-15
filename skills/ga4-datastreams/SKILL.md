@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 datastreams --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x datastreams --help"
 ---
 
 # ga4 datastreams
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 datastreams <command> <property-id> [flags]
+ga4x datastreams <command> <property-id> [flags]
 ```
 
 ## Commands
@@ -64,8 +64,8 @@ Single object with the same fields as above.
 
 ```bash
 # List all streams for a property
-ga4 datastreams list 123456789
+ga4x datastreams list 123456789
 
 # Get a specific stream (includes measurement ID)
-ga4 datastreams get 123456789 9876543
+ga4x datastreams get 123456789 9876543
 ```

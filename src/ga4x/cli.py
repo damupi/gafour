@@ -4,20 +4,20 @@ from typing import Annotated, Optional
 
 import typer
 
-from ga4 import __version__
-from ga4.commands.accounts import accounts_app
-from ga4.commands.audiences import audiences_app
-from ga4.commands.auth import auth_app
-from ga4.commands.config import config_app
-from ga4.commands.custom_dimensions import custom_dimensions_app
-from ga4.commands.custom_metrics import custom_metrics_app
-from ga4.commands.datastreams import datastreams_app
-from ga4.commands.events import events_app
-from ga4.commands.key_events import key_events_app
-from ga4.commands.metadata import metadata_app
-from ga4.commands.properties import properties_app
-from ga4.commands.realtime import realtime_app
-from ga4.commands.reports import reports_app
+from ga4x import __version__
+from ga4x.commands.accounts import accounts_app
+from ga4x.commands.audiences import audiences_app
+from ga4x.commands.auth import auth_app
+from ga4x.commands.config import config_app
+from ga4x.commands.custom_dimensions import custom_dimensions_app
+from ga4x.commands.custom_metrics import custom_metrics_app
+from ga4x.commands.datastreams import datastreams_app
+from ga4x.commands.events import events_app
+from ga4x.commands.key_events import key_events_app
+from ga4x.commands.metadata import metadata_app
+from ga4x.commands.properties import properties_app
+from ga4x.commands.realtime import realtime_app
+from ga4x.commands.reports import reports_app
 
 app = typer.Typer(
     name="ga4",

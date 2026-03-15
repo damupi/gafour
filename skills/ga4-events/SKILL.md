@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 events --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x events --help"
 ---
 
 # ga4 events
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 events <command> <property-id> <stream-id> [flags]
+ga4x events <command> <property-id> <stream-id> [flags]
 ```
 
 ## Commands
@@ -48,11 +48,11 @@ ga4 events <command> <property-id> <stream-id> [flags]
 ]
 ```
 
-The stream ID required here is the numeric ID from `ga4 datastreams list`. Use `ga4 datastreams list <property-id>` to discover available stream IDs.
+The stream ID required here is the numeric ID from `ga4x datastreams list`. Use `ga4x datastreams list <property-id>` to discover available stream IDs.
 
 ## Examples
 
 ```bash
 # List event create rules for a stream
-ga4 events list 123456789 9876543
+ga4x events list 123456789 9876543
 ```

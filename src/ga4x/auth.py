@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ga4.config import Config
-from ga4.errors import AuthError
+from ga4x.config import Config
+from ga4x.errors import AuthError
 
 
 def build_data_client(config: Config) -> "BetaAnalyticsDataClient":  # type: ignore[name-defined]  # noqa: F821

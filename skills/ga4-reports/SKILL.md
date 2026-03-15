@@ -6,18 +6,18 @@ metadata:
   openclaw:
     category: "analytics"
     requires:
-      bins: ["ga4"]
-    cliHelp: "ga4 reports --help"
+      bins: ["ga4x"]
+    cliHelp: "ga4x reports --help"
 ---
 
 # ga4 reports
 
-> **PREREQUISITE:** The `ga4` CLI must be installed and authenticated before using this skill.
+> **PREREQUISITE:** The `ga4x` CLI must be installed and authenticated before using this skill.
 > - Installation: see the [Installation](https://github.com/damupi/ga4-cli#installation) section of the README.
-> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4 auth status` to verify.
+> - Authentication: see the [Authentication](https://github.com/damupi/ga4-cli#authentication) section. Run `ga4x auth status` to verify.
 
 ```bash
-ga4 reports run [flags]
+ga4x reports run [flags]
 ```
 
 ## Commands
@@ -116,12 +116,12 @@ Both `--filter` and `--metric-filter` accept the same DSL:
 
 ```bash
 # Sessions and users over the last 28 days
-ga4 reports run \
+ga4x reports run \
   --property-id 123456789 \
   --metrics sessions,activeUsers
 
 # Daily sessions by country, last 7 days, top 50
-ga4 reports run \
+ga4x reports run \
   --property-id 123456789 \
   --metrics sessions \
   --dimensions date,country \
@@ -130,7 +130,7 @@ ga4 reports run \
   --limit 50
 
 # Paginate through a large result set
-ga4 reports run \
+ga4x reports run \
   --property-id 123456789 \
   --metrics sessions \
   --dimensions date \
@@ -139,7 +139,7 @@ ga4 reports run \
   --offset 0
 
 # Save output to file
-ga4 reports run \
+ga4x reports run \
   --property-id 123456789 \
   --metrics sessions,activeUsers,engagementRate \
   --dimensions date,deviceCategory \
