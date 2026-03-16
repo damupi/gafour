@@ -88,3 +88,6 @@ logs/
 *.tmp
 *.bak
 *.orig
+
+# Claude Code memory
+memory/
