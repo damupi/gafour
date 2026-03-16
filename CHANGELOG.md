@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/damupi/gafour/compare/v1.0.0...v1.1.0) (2026-03-16)
+
+
+### Features
+
+* add reports batch command for period-over-period comparison ([0ffc535](https://github.com/damupi/gafour/commit/0ffc53555d12b84e1e4faa1fbb4974d822e2ca46))
+
+
+### Documentation
+
+* update installation references from ga4-cli to ga4x and expand commit type guide ([b9f33a7](https://github.com/damupi/gafour/commit/b9f33a75f31df35511b26610cae3a9706adaba71))
+
 ## [1.0.0](https://github.com/damupi/ga4-cli/compare/v0.1.0...v1.0.0) (2026-03-15)
 
 
