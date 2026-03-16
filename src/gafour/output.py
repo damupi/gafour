@@ -12,7 +12,7 @@ from rich.console import Console
 from rich.table import Table
 
 from gafour.errors import GA4CLIError
-from gafour.models.report import ReportResponse
+from gafour.models.report import BatchReportResponse, ReportResponse
 
 _stderr_console = Console(stderr=True)
 _stdout_console = Console()
@@ -131,6 +131,11 @@ def render_json_item(item: BaseModel) -> str:
 def render_json_list(items: list[BaseModel]) -> str:
     """Serialize a list of Pydantic models as indented JSON."""
     return json.dumps([item.model_dump(mode="json") for item in items], indent=2)
+
+
+def render_batch_report(batch: BatchReportResponse) -> str:
+    """Serialize a BatchReportResponse as indented JSON."""
+    return batch.model_dump_json(indent=2)
 
 
 def render_report(report: ReportResponse) -> str:
