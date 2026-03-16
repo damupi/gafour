@@ -9,7 +9,7 @@ from google.api_core import exceptions as google_exceptions  # type: ignore[impo
 from gafour.auth import build_data_client
 from gafour.config import load_config
 from gafour.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from gafour.models.report import BatchReportResponse, ReportRequest, ReportResponse
+from gafour.models.report import BatchReportRequestItem, BatchReportResponse, ReportRequest, ReportResponse
 from gafour.output import print_error, render_batch_report, render_report
 
 reports_app = typer.Typer(name="reports", help="Run GA4 Data API reports.")
@@ -261,62 +261,45 @@ def reports_batch(
         Optional[str],
         typer.Option("--property-id", "-p", help="The numeric GA4 property ID."),
     ] = None,
-    metrics: Annotated[
-        Optional[list[str]],
-        typer.Option("--metrics", "-m", help="Metric API names (repeatable)."),
+    requests_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--requests-file",
+            "-f",
+            help="Path to a JSON file containing an array of report request objects (1–5).",
+        ),
     ] = None,
-    start_date: Annotated[
-        str,
-        typer.Option("--start-date", help="Primary period start date (YYYY-MM-DD or relative)."),
-    ] = "28daysAgo",
-    end_date: Annotated[
-        str,
-        typer.Option("--end-date", help="Primary period end date (YYYY-MM-DD or 'today')."),
-    ] = "today",
-    compare_start_date: Annotated[
-        Optional[str],
-        typer.Option("--compare-start-date", help="Comparison period start date."),
-    ] = None,
-    compare_end_date: Annotated[
-        Optional[str],
-        typer.Option("--compare-end-date", help="Comparison period end date."),
-    ] = None,
-    dimensions: Annotated[
-        Optional[list[str]],
-        typer.Option("--dimensions", "-d", help="Dimension API names (repeatable)."),
-    ] = None,
-    filter_expr: Annotated[
-        Optional[str],
-        typer.Option("--filter", help="Dimension filter DSL (applied to both periods)."),
-    ] = None,
-    metric_filter_expr: Annotated[
-        Optional[str],
-        typer.Option("--metric-filter", help="Metric filter DSL (applied to both periods)."),
-    ] = None,
-    order_by: Annotated[
-        Optional[list[str]],
-        typer.Option("--order-by", help="Order-by expressions (repeatable)."),
-    ] = None,
-    limit: Annotated[
-        int,
-        typer.Option("--limit", help="Maximum number of rows per report (1-250000)."),
-    ] = 10000,
-    offset: Annotated[
-        int,
-        typer.Option("--offset", help="Zero-based row offset for pagination."),
-    ] = 0,
     output: Annotated[
         Optional[Path],
         typer.Option("--output", "-o", help="Write output to file."),
     ] = None,
 ) -> None:
-    """Run two GA4 reports in a single batch request for period-over-period comparison.
+    """Run multiple independent GA4 reports in a single batchRunReports API call.
 
-    Sends the same metrics/dimensions/filters for the primary period (--start-date /
-    --end-date) and the comparison period (--compare-start-date / --compare-end-date)
-    in one batchRunReports API call.  Output is JSON with a 'reports' array containing
-    both RunReportResponse objects in order: primary first, comparison second.
+    Each request in the JSON file is an independent RunReportRequest with its own
+    metrics, dimensions, date ranges, filters, and order-bys.  The GA4 API allows
+    1-5 requests per batch.  Output is JSON with a 'reports' array.
+
+    Example requests file:
+
+    \\b
+    [
+      {
+        "metrics": ["sessions"],
+        "dimensions": ["date"],
+        "date_ranges": [{"start_date": "7daysAgo", "end_date": "today"}]
+      },
+      {
+        "metrics": ["activeUsers"],
+        "dimensions": ["country"],
+        "date_ranges": [{"start_date": "30daysAgo", "end_date": "today"}]
+      }
+    ]
     """
+    import json as _json
+
+    from pydantic import ValidationError as PydanticValidationError
+
     try:
         config = load_config()
         effective_property_id = property_id or config.default_property_id
@@ -329,42 +312,51 @@ def reports_batch(
             print_error(err)
             raise typer.Exit(err.exit_code)
 
-        metrics_list = _split_csv(metrics)
-        dimensions_list = _split_csv(dimensions)
-        order_by_list = _split_csv(order_by)
-
-        if not metrics_list:
+        if not requests_file:
             err = ValidationError(
-                message="At least one --metrics value is required.",
-                hint="Example: --metrics sessions --metrics users",
-                recovery_command="ga4 metadata metrics --property-id " + effective_property_id,
+                message="--requests-file is required.",
+                hint="Pass a JSON file containing an array of report request objects.",
             )
             print_error(err)
             raise typer.Exit(err.exit_code)
 
-        # Default comparison period: the equivalent window immediately before the primary.
-        effective_compare_start = compare_start_date
-        effective_compare_end = compare_end_date
+        # Parse and validate the JSON file.
+        try:
+            raw_text = requests_file.read_text(encoding="utf-8")
+        except OSError as exc:
+            err = ValidationError(message=f"Cannot read requests file: {exc}")
+            print_error(err)
+            raise typer.Exit(err.exit_code)
 
-        from gafour.filters import filter_expression_to_proto, parse_filter_expression
+        try:
+            raw_list = _json.loads(raw_text)
+        except _json.JSONDecodeError as exc:
+            err = ValidationError(message=f"Invalid JSON in requests file: {exc}")
+            print_error(err)
+            raise typer.Exit(err.exit_code)
 
-        dim_filter = None
-        if filter_expr:
-            try:
-                dim_filter = parse_filter_expression(filter_expr)
-            except ValueError as exc:
-                err = ValidationError(message=f"Invalid --filter expression: {exc}")
-                print_error(err)
-                raise typer.Exit(err.exit_code)
+        if not isinstance(raw_list, list) or len(raw_list) == 0:
+            err = ValidationError(
+                message="Requests file must contain a non-empty JSON array.",
+                hint="Each element should be a report request object with 'metrics' and 'date_ranges'.",
+            )
+            print_error(err)
+            raise typer.Exit(err.exit_code)
 
-        met_filter = None
-        if metric_filter_expr:
-            try:
-                met_filter = parse_filter_expression(metric_filter_expr)
-            except ValueError as exc:
-                err = ValidationError(message=f"Invalid --metric-filter expression: {exc}")
-                print_error(err)
-                raise typer.Exit(err.exit_code)
+        if len(raw_list) > 5:
+            err = ValidationError(
+                message=f"Too many requests: {len(raw_list)} (GA4 API limit is 5 per batch).",
+                hint="Split your requests into multiple batches of up to 5.",
+            )
+            print_error(err)
+            raise typer.Exit(err.exit_code)
+
+        try:
+            items = [BatchReportRequestItem.model_validate(r) for r in raw_list]
+        except PydanticValidationError as exc:
+            err = ValidationError(message=f"Invalid request item in file: {exc}")
+            print_error(err)
+            raise typer.Exit(err.exit_code)
 
         from google.analytics.data_v1beta.types import (  # type: ignore[import-untyped]
             BatchRunReportsRequest,
@@ -374,32 +366,37 @@ def reports_batch(
             RunReportRequest,
         )
 
-        def _build_run_request(s_date: str, e_date: str) -> RunReportRequest:
+        from gafour.filters import filter_expression_to_proto
+
+        def _build_run_request(item: BatchReportRequestItem) -> RunReportRequest:
             return RunReportRequest(
                 property=f"properties/{effective_property_id}",
-                dimensions=[Dimension(name=d) for d in dimensions_list],
-                metrics=[Metric(name=m) for m in metrics_list],
-                date_ranges=[DateRange(start_date=s_date, end_date=e_date)],
+                dimensions=[Dimension(name=d) for d in item.dimensions],
+                metrics=[Metric(name=m) for m in item.metrics],
+                date_ranges=[
+                    DateRange(start_date=dr.start_date, end_date=dr.end_date)
+                    for dr in item.date_ranges
+                ],
                 dimension_filter=(
-                    filter_expression_to_proto(dim_filter) if dim_filter else None
+                    filter_expression_to_proto(item.dimension_filter)
+                    if item.dimension_filter
+                    else None
                 ),
                 metric_filter=(
-                    filter_expression_to_proto(met_filter) if met_filter else None
+                    filter_expression_to_proto(item.metric_filter)
+                    if item.metric_filter
+                    else None
                 ),
-                order_bys=_parse_order_bys(order_by_list),
-                limit=limit,
-                offset=offset,
+                order_bys=_parse_order_bys(_split_csv(item.order_bys)),
+                limit=item.limit,
+                offset=item.offset,
             )
 
-        primary_req = _build_run_request(start_date, end_date)
-
-        requests = [primary_req]
-        if effective_compare_start and effective_compare_end:
-            requests.append(_build_run_request(effective_compare_start, effective_compare_end))
+        run_requests = [_build_run_request(item) for item in items]
 
         batch_request = BatchRunReportsRequest(
             property=f"properties/{effective_property_id}",
-            requests=requests,
+            requests=run_requests,
         )
 
         client = build_data_client(config)

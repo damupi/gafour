@@ -185,6 +185,21 @@ class ReportResponse(BaseModel):
         )
 
 
+class BatchReportRequestItem(BaseModel):
+    """One request item in a batchRunReports call."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    metrics: list[str]
+    dimensions: list[str] = []
+    date_ranges: list[DateRange]
+    dimension_filter: FilterExpression | None = None
+    metric_filter: FilterExpression | None = None
+    order_bys: list[str] = []
+    limit: int = Field(default=10000, ge=1, le=250000)
+    offset: int = Field(default=0, ge=0)
+
+
 class BatchReportResponse(BaseModel):
     """Parsed response from a GA4 batchRunReports API call.
 

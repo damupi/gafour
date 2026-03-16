@@ -88,6 +88,32 @@ Response structure:
 
 Map values using index: `dimension_headers[i].name` → `rows[n].dimension_values[i].value`.
 
+### Batch reports
+
+Run multiple independent reports in a single API call (1–5 per batch). Use when you need different metrics/dimensions/date ranges in one round-trip:
+
+```bash
+cat > /tmp/batch.json << 'EOF'
+[
+  {
+    "metrics": ["sessions"],
+    "dimensions": ["date"],
+    "date_ranges": [{"start_date": "7daysAgo", "end_date": "yesterday"}]
+  },
+  {
+    "metrics": ["activeUsers"],
+    "dimensions": ["country"],
+    "date_ranges": [{"start_date": "30daysAgo", "end_date": "yesterday"}]
+  }
+]
+EOF
+
+gafour reports batch --property-id <id> --requests-file /tmp/batch.json
+```
+
+Response: `{"kind": "...", "reports": [...]}` — `reports[i]` corresponds to request `i`.
+Parse each report with the same index mapping as `reports run`.
+
 ### Realtime report
 ```bash
 gafour realtime run --property-id <id> --metrics activeUsers --dimensions country
@@ -211,7 +237,17 @@ gafour reports run --property-id <id> \
 ```
 
 ### Period-over-period comparison
-Run the same report twice with different date ranges, then calculate percentage change: `((current - previous) / previous) * 100`.
+Use `reports batch` to fetch both periods in one API call, then calculate percentage change: `((current - previous) / previous) * 100`.
+
+```bash
+cat > /tmp/period_compare.json << 'EOF'
+[
+  {"metrics": ["sessions","activeUsers"], "date_ranges": [{"start_date": "30daysAgo", "end_date": "yesterday"}]},
+  {"metrics": ["sessions","activeUsers"], "date_ranges": [{"start_date": "60daysAgo", "end_date": "31daysAgo"}]}
+]
+EOF
+gafour reports batch --property-id <id> --requests-file /tmp/period_compare.json
+```
 
 ### Campaign performance
 ```bash

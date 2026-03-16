@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 from typer.testing import CliRunner
 
 from gafour.cli import app
-from gafour.models.report import BatchReportResponse, ReportResponse
+from gafour.models.report import BatchReportRequestItem, BatchReportResponse, ReportResponse
 
 
 # ---------------------------------------------------------------------------
@@ -53,8 +54,41 @@ def test_batch_report_response_empty_reports() -> None:
     assert result.reports == []
 
 
+def test_batch_report_request_item_valid() -> None:
+    """BatchReportRequestItem validates a minimal request object."""
+    item = BatchReportRequestItem.model_validate(
+        {
+            "metrics": ["sessions"],
+            "date_ranges": [{"start_date": "7daysAgo", "end_date": "today"}],
+        }
+    )
+    assert item.metrics == ["sessions"]
+    assert len(item.date_ranges) == 1
+    assert item.dimensions == []
+    assert item.limit == 10000
+    assert item.offset == 0
+
+
+def test_batch_report_request_item_missing_metrics() -> None:
+    """BatchReportRequestItem raises when metrics is absent."""
+    from pydantic import ValidationError as PydanticValidationError
+
+    with pytest.raises(PydanticValidationError):
+        BatchReportRequestItem.model_validate(
+            {"date_ranges": [{"start_date": "7daysAgo", "end_date": "today"}]}
+        )
+
+
+def test_batch_report_request_item_missing_date_ranges() -> None:
+    """BatchReportRequestItem raises when date_ranges is absent."""
+    from pydantic import ValidationError as PydanticValidationError
+
+    with pytest.raises(PydanticValidationError):
+        BatchReportRequestItem.model_validate({"metrics": ["sessions"]})
+
+
 # ---------------------------------------------------------------------------
-# CLI tests
+# CLI helpers
 # ---------------------------------------------------------------------------
 
 
@@ -95,8 +129,41 @@ def runner() -> CliRunner:
     return CliRunner()
 
 
-def test_reports_batch_run_basic(runner: CliRunner) -> None:
-    """reports batch outputs valid JSON with two report entries."""
+def _write_requests_file(tmp_path: Path, requests: list) -> Path:  # type: ignore[type-arg]
+    p = tmp_path / "requests.json"
+    p.write_text(json.dumps(requests), encoding="utf-8")
+    return p
+
+
+_TWO_REQUESTS = [
+    {
+        "metrics": ["sessions"],
+        "dimensions": ["date"],
+        "date_ranges": [{"start_date": "7daysAgo", "end_date": "today"}],
+    },
+    {
+        "metrics": ["activeUsers"],
+        "dimensions": ["country"],
+        "date_ranges": [{"start_date": "14daysAgo", "end_date": "8daysAgo"}],
+    },
+]
+
+_ONE_REQUEST = [
+    {
+        "metrics": ["sessions"],
+        "date_ranges": [{"start_date": "7daysAgo", "end_date": "today"}],
+    }
+]
+
+
+# ---------------------------------------------------------------------------
+# CLI tests
+# ---------------------------------------------------------------------------
+
+
+def test_reports_batch_two_requests(runner: CliRunner, tmp_path: Path) -> None:
+    """reports batch outputs valid JSON with two report entries from a file."""
+    req_file = _write_requests_file(tmp_path, _TWO_REQUESTS)
     mock_client = MagicMock()
     mock_client.batch_run_reports.return_value = _make_batch_api_response()
 
@@ -114,16 +181,8 @@ def test_reports_batch_run_basic(runner: CliRunner) -> None:
                 "batch",
                 "--property-id",
                 "12345",
-                "--metrics",
-                "sessions",
-                "--start-date",
-                "7daysAgo",
-                "--end-date",
-                "today",
-                "--compare-start-date",
-                "14daysAgo",
-                "--compare-end-date",
-                "8daysAgo",
+                "--requests-file",
+                str(req_file),
             ],
         )
 
@@ -133,8 +192,53 @@ def test_reports_batch_run_basic(runner: CliRunner) -> None:
     assert len(data["reports"]) == 2
 
 
-def test_reports_batch_uses_default_property_id(runner: CliRunner) -> None:
+def test_reports_batch_single_request(runner: CliRunner, tmp_path: Path) -> None:
+    """reports batch works with a single request in the file."""
+    req_file = _write_requests_file(tmp_path, _ONE_REQUEST)
+    single_report = MagicMock()
+    single_report.dimension_headers = []
+    single_report.metric_headers = []
+    single_report.rows = []
+    single_report.totals = []
+    single_report.maximums = []
+    single_report.minimums = []
+    single_report.row_count = 0
+    single_report.kind = "analyticsData#runReport"
+
+    batch_resp = MagicMock()
+    batch_resp.reports = [single_report]
+    batch_resp.kind = "analyticsData#batchRunReports"
+
+    mock_client = MagicMock()
+    mock_client.batch_run_reports.return_value = batch_resp
+
+    with (
+        patch("gafour.commands.reports.build_data_client", return_value=mock_client),
+        patch(
+            "gafour.commands.reports.load_config",
+            return_value=MagicMock(default_property_id="12345"),
+        ),
+    ):
+        result = runner.invoke(
+            app,
+            [
+                "reports",
+                "batch",
+                "--property-id",
+                "12345",
+                "--requests-file",
+                str(req_file),
+            ],
+        )
+
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    assert len(data["reports"]) == 1
+
+
+def test_reports_batch_uses_default_property_id(runner: CliRunner, tmp_path: Path) -> None:
     """reports batch picks up property_id from config when not passed explicitly."""
+    req_file = _write_requests_file(tmp_path, _ONE_REQUEST)
     mock_client = MagicMock()
     mock_client.batch_run_reports.return_value = _make_batch_api_response()
 
@@ -147,55 +251,18 @@ def test_reports_batch_uses_default_property_id(runner: CliRunner) -> None:
     ):
         result = runner.invoke(
             app,
-            [
-                "reports",
-                "batch",
-                "--metrics",
-                "sessions",
-                "--compare-start-date",
-                "14daysAgo",
-                "--compare-end-date",
-                "8daysAgo",
-            ],
+            ["reports", "batch", "--requests-file", str(req_file)],
         )
 
     assert result.exit_code == 0, result.output
 
 
-def test_reports_batch_requires_metrics(runner: CliRunner) -> None:
-    """reports batch exits with an error when no --metrics are given."""
-    mock_client = MagicMock()
-
-    with (
-        patch("gafour.commands.reports.build_data_client", return_value=mock_client),
-        patch(
-            "gafour.commands.reports.load_config",
-            return_value=MagicMock(default_property_id="12345"),
-        ),
-    ):
-        result = runner.invoke(
-            app,
-            [
-                "reports",
-                "batch",
-                "--property-id",
-                "12345",
-                "--compare-start-date",
-                "14daysAgo",
-                "--compare-end-date",
-                "8daysAgo",
-            ],
-        )
-
-    assert result.exit_code != 0
-
-
-def test_reports_batch_requires_property_id(runner: CliRunner) -> None:
+def test_reports_batch_requires_property_id(runner: CliRunner, tmp_path: Path) -> None:
     """reports batch exits with an error when no property id is available."""
-    mock_client = MagicMock()
+    req_file = _write_requests_file(tmp_path, _ONE_REQUEST)
 
     with (
-        patch("gafour.commands.reports.build_data_client", return_value=mock_client),
+        patch("gafour.commands.reports.build_data_client", return_value=MagicMock()),
         patch(
             "gafour.commands.reports.load_config",
             return_value=MagicMock(default_property_id=None),
@@ -203,23 +270,99 @@ def test_reports_batch_requires_property_id(runner: CliRunner) -> None:
     ):
         result = runner.invoke(
             app,
-            [
-                "reports",
-                "batch",
-                "--metrics",
-                "sessions",
-                "--compare-start-date",
-                "14daysAgo",
-                "--compare-end-date",
-                "8daysAgo",
-            ],
+            ["reports", "batch", "--requests-file", str(req_file)],
         )
 
     assert result.exit_code != 0
 
 
-def test_reports_batch_sends_two_requests_to_api(runner: CliRunner) -> None:
-    """reports batch sends exactly two RunReportRequests in the API call."""
+def test_reports_batch_requires_requests_file(runner: CliRunner) -> None:
+    """reports batch exits with an error when --requests-file is not given."""
+    with (
+        patch("gafour.commands.reports.build_data_client", return_value=MagicMock()),
+        patch(
+            "gafour.commands.reports.load_config",
+            return_value=MagicMock(default_property_id="12345"),
+        ),
+    ):
+        result = runner.invoke(
+            app,
+            ["reports", "batch", "--property-id", "12345"],
+        )
+
+    assert result.exit_code != 0
+
+
+def test_reports_batch_invalid_json(runner: CliRunner, tmp_path: Path) -> None:
+    """reports batch exits with an error when the file contains invalid JSON."""
+    bad_file = tmp_path / "bad.json"
+    bad_file.write_text("not json at all", encoding="utf-8")
+
+    with (
+        patch("gafour.commands.reports.build_data_client", return_value=MagicMock()),
+        patch(
+            "gafour.commands.reports.load_config",
+            return_value=MagicMock(default_property_id="12345"),
+        ),
+    ):
+        result = runner.invoke(
+            app,
+            ["reports", "batch", "--property-id", "12345", "--requests-file", str(bad_file)],
+        )
+
+    assert result.exit_code != 0
+
+
+def test_reports_batch_missing_required_fields(runner: CliRunner, tmp_path: Path) -> None:
+    """reports batch exits when a request item is missing required fields."""
+    bad_requests = [{"dimensions": ["date"]}]  # missing metrics and date_ranges
+    req_file = _write_requests_file(tmp_path, bad_requests)
+
+    with (
+        patch("gafour.commands.reports.build_data_client", return_value=MagicMock()),
+        patch(
+            "gafour.commands.reports.load_config",
+            return_value=MagicMock(default_property_id="12345"),
+        ),
+    ):
+        result = runner.invoke(
+            app,
+            ["reports", "batch", "--property-id", "12345", "--requests-file", str(req_file)],
+        )
+
+    assert result.exit_code != 0
+
+
+def test_reports_batch_exceeds_five_requests(runner: CliRunner, tmp_path: Path) -> None:
+    """reports batch exits when more than 5 requests are in the file."""
+    too_many = [
+        {
+            "metrics": ["sessions"],
+            "date_ranges": [{"start_date": "7daysAgo", "end_date": "today"}],
+        }
+    ] * 6
+    req_file = _write_requests_file(tmp_path, too_many)
+
+    with (
+        patch("gafour.commands.reports.build_data_client", return_value=MagicMock()),
+        patch(
+            "gafour.commands.reports.load_config",
+            return_value=MagicMock(default_property_id="12345"),
+        ),
+    ):
+        result = runner.invoke(
+            app,
+            ["reports", "batch", "--property-id", "12345", "--requests-file", str(req_file)],
+        )
+
+    assert result.exit_code != 0
+
+
+def test_reports_batch_sends_correct_request_count_to_api(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    """reports batch sends exactly N RunReportRequests matching the file contents."""
+    req_file = _write_requests_file(tmp_path, _TWO_REQUESTS)
     mock_client = MagicMock()
     mock_client.batch_run_reports.return_value = _make_batch_api_response()
 
@@ -235,18 +378,10 @@ def test_reports_batch_sends_two_requests_to_api(runner: CliRunner) -> None:
             [
                 "reports",
                 "batch",
-                "--metrics",
-                "sessions",
                 "--property-id",
                 "12345",
-                "--start-date",
-                "7daysAgo",
-                "--end-date",
-                "today",
-                "--compare-start-date",
-                "14daysAgo",
-                "--compare-end-date",
-                "8daysAgo",
+                "--requests-file",
+                str(req_file),
             ],
         )
 
@@ -256,8 +391,9 @@ def test_reports_batch_sends_two_requests_to_api(runner: CliRunner) -> None:
     assert len(request_arg.requests) == 2
 
 
-def test_reports_batch_output_to_file(runner: CliRunner, tmp_path) -> None:  # type: ignore[no-untyped-def]
+def test_reports_batch_output_to_file(runner: CliRunner, tmp_path: Path) -> None:
     """reports batch --output writes JSON to a file."""
+    req_file = _write_requests_file(tmp_path, _TWO_REQUESTS)
     mock_client = MagicMock()
     mock_client.batch_run_reports.return_value = _make_batch_api_response()
     out_file = tmp_path / "batch.json"
@@ -276,12 +412,8 @@ def test_reports_batch_output_to_file(runner: CliRunner, tmp_path) -> None:  # t
                 "batch",
                 "--property-id",
                 "12345",
-                "--metrics",
-                "sessions",
-                "--compare-start-date",
-                "14daysAgo",
-                "--compare-end-date",
-                "8daysAgo",
+                "--requests-file",
+                str(req_file),
                 "--output",
                 str(out_file),
             ],
