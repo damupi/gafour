@@ -141,7 +141,7 @@ gafour properties list --account-id <id>
 ## Workflow
 
 1. **Clarify** — if property ID is missing, run `gafour accounts list` then `gafour properties list` to find it.
-2. **Plan** — decide which metrics, dimensions, and date range answer the question. Prefer `yesterday` over `today` for complete data.
+2. **Plan** — decide which metrics, dimensions, and date range answer the question. Prefer `yesterday` over `today` for complete data. If the question involves conversions or revenue, run `gafour key-events list <property-id>` first to understand what events are being counted.
 3. **Fetch** — run one or more `gafour reports run` commands. For comparisons, run two reports (current period + previous period).
 4. **Parse** — read the JSON response and extract the values.
 5. **Analyse** — identify trends, anomalies, top/bottom performers.
@@ -169,6 +169,14 @@ Always label recommendations with **HIGH / MEDIUM / LOW** priority and include e
 | Transactions | `transactions` |
 | Purchase revenue | `purchaseRevenue` |
 
+Before running any conversion or revenue report, fetch the property's key events to understand what actions are being counted as conversions:
+
+```bash
+gafour key-events list <property-id>
+```
+
+Response fields: `eventName`, `countingMethod`, `custom`, `deletable`. Use `eventName` values to filter reports (e.g. `--filter 'eventName = "purchase"'`) or to add useful context when interpreting `conversions` totals.
+
 ### Page & Content
 | Metric | API name |
 |--------|----------|
@@ -177,6 +185,16 @@ Always label recommendations with **HIGH / MEDIUM / LOW** priority and include e
 | Event count | `eventCount` |
 
 ## Key dimensions reference
+
+Always use the live list for a property — do not guess API names:
+
+```bash
+gafour metadata dimensions --property-id <id>
+# or search by keyword
+gafour metadata dimensions --property-id <id> --search device
+```
+
+Common dimensions for quick reference (confirm API name with the command above):
 
 | Dimension | API name |
 |-----------|----------|
