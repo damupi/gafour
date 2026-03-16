@@ -9,8 +9,8 @@ from google.api_core import exceptions as google_exceptions  # type: ignore[impo
 from gafour.auth import build_data_client
 from gafour.config import load_config
 from gafour.errors import AuthError, GA4CLIError, NetworkError, ValidationError
-from gafour.models.report import ReportRequest, ReportResponse
-from gafour.output import print_error, render_report
+from gafour.models.report import BatchReportResponse, ReportRequest, ReportResponse
+from gafour.output import print_error, render_batch_report, render_report
 
 reports_app = typer.Typer(name="reports", help="Run GA4 Data API reports.")
 
@@ -247,6 +247,183 @@ def reports_run(
         raise typer.Exit(err.exit_code)
     except google_exceptions.InvalidArgument as exc:
         err = ValidationError(message=f"Invalid report request: {exc}")
+        print_error(err)
+        raise typer.Exit(err.exit_code)
+    except google_exceptions.GoogleAPICallError as exc:
+        err = NetworkError(message=f"API call failed: {exc}")
+        print_error(err)
+        raise typer.Exit(err.exit_code)
+
+
+@reports_app.command("batch")
+def reports_batch(
+    property_id: Annotated[
+        Optional[str],
+        typer.Option("--property-id", "-p", help="The numeric GA4 property ID."),
+    ] = None,
+    metrics: Annotated[
+        Optional[list[str]],
+        typer.Option("--metrics", "-m", help="Metric API names (repeatable)."),
+    ] = None,
+    start_date: Annotated[
+        str,
+        typer.Option("--start-date", help="Primary period start date (YYYY-MM-DD or relative)."),
+    ] = "28daysAgo",
+    end_date: Annotated[
+        str,
+        typer.Option("--end-date", help="Primary period end date (YYYY-MM-DD or 'today')."),
+    ] = "today",
+    compare_start_date: Annotated[
+        Optional[str],
+        typer.Option("--compare-start-date", help="Comparison period start date."),
+    ] = None,
+    compare_end_date: Annotated[
+        Optional[str],
+        typer.Option("--compare-end-date", help="Comparison period end date."),
+    ] = None,
+    dimensions: Annotated[
+        Optional[list[str]],
+        typer.Option("--dimensions", "-d", help="Dimension API names (repeatable)."),
+    ] = None,
+    filter_expr: Annotated[
+        Optional[str],
+        typer.Option("--filter", help="Dimension filter DSL (applied to both periods)."),
+    ] = None,
+    metric_filter_expr: Annotated[
+        Optional[str],
+        typer.Option("--metric-filter", help="Metric filter DSL (applied to both periods)."),
+    ] = None,
+    order_by: Annotated[
+        Optional[list[str]],
+        typer.Option("--order-by", help="Order-by expressions (repeatable)."),
+    ] = None,
+    limit: Annotated[
+        int,
+        typer.Option("--limit", help="Maximum number of rows per report (1-250000)."),
+    ] = 10000,
+    offset: Annotated[
+        int,
+        typer.Option("--offset", help="Zero-based row offset for pagination."),
+    ] = 0,
+    output: Annotated[
+        Optional[Path],
+        typer.Option("--output", "-o", help="Write output to file."),
+    ] = None,
+) -> None:
+    """Run two GA4 reports in a single batch request for period-over-period comparison.
+
+    Sends the same metrics/dimensions/filters for the primary period (--start-date /
+    --end-date) and the comparison period (--compare-start-date / --compare-end-date)
+    in one batchRunReports API call.  Output is JSON with a 'reports' array containing
+    both RunReportResponse objects in order: primary first, comparison second.
+    """
+    try:
+        config = load_config()
+        effective_property_id = property_id or config.default_property_id
+        if not effective_property_id:
+            err = ValidationError(
+                message="--property-id is required.",
+                hint="Pass --property-id or set GA4_PROPERTY_ID in your environment.",
+                recovery_command="ga4 config set default_property_id <property-id>",
+            )
+            print_error(err)
+            raise typer.Exit(err.exit_code)
+
+        metrics_list = _split_csv(metrics)
+        dimensions_list = _split_csv(dimensions)
+        order_by_list = _split_csv(order_by)
+
+        if not metrics_list:
+            err = ValidationError(
+                message="At least one --metrics value is required.",
+                hint="Example: --metrics sessions --metrics users",
+                recovery_command="ga4 metadata metrics --property-id " + effective_property_id,
+            )
+            print_error(err)
+            raise typer.Exit(err.exit_code)
+
+        # Default comparison period: the equivalent window immediately before the primary.
+        effective_compare_start = compare_start_date
+        effective_compare_end = compare_end_date
+
+        from gafour.filters import filter_expression_to_proto, parse_filter_expression
+
+        dim_filter = None
+        if filter_expr:
+            try:
+                dim_filter = parse_filter_expression(filter_expr)
+            except ValueError as exc:
+                err = ValidationError(message=f"Invalid --filter expression: {exc}")
+                print_error(err)
+                raise typer.Exit(err.exit_code)
+
+        met_filter = None
+        if metric_filter_expr:
+            try:
+                met_filter = parse_filter_expression(metric_filter_expr)
+            except ValueError as exc:
+                err = ValidationError(message=f"Invalid --metric-filter expression: {exc}")
+                print_error(err)
+                raise typer.Exit(err.exit_code)
+
+        from google.analytics.data_v1beta.types import (  # type: ignore[import-untyped]
+            BatchRunReportsRequest,
+            DateRange,
+            Dimension,
+            Metric,
+            RunReportRequest,
+        )
+
+        def _build_run_request(s_date: str, e_date: str) -> RunReportRequest:
+            return RunReportRequest(
+                property=f"properties/{effective_property_id}",
+                dimensions=[Dimension(name=d) for d in dimensions_list],
+                metrics=[Metric(name=m) for m in metrics_list],
+                date_ranges=[DateRange(start_date=s_date, end_date=e_date)],
+                dimension_filter=(
+                    filter_expression_to_proto(dim_filter) if dim_filter else None
+                ),
+                metric_filter=(
+                    filter_expression_to_proto(met_filter) if met_filter else None
+                ),
+                order_bys=_parse_order_bys(order_by_list),
+                limit=limit,
+                offset=offset,
+            )
+
+        primary_req = _build_run_request(start_date, end_date)
+
+        requests = [primary_req]
+        if effective_compare_start and effective_compare_end:
+            requests.append(_build_run_request(effective_compare_start, effective_compare_end))
+
+        batch_request = BatchRunReportsRequest(
+            property=f"properties/{effective_property_id}",
+            requests=requests,
+        )
+
+        client = build_data_client(config)
+        response = client.batch_run_reports(request=batch_request)
+
+        batch = BatchReportResponse.from_api_response(response)
+        result = render_batch_report(batch)
+        if output:
+            output.write_text(result, encoding="utf-8")
+        else:
+            typer.echo(result)
+    except GA4CLIError as exc:
+        print_error(exc)
+        raise typer.Exit(exc.exit_code)
+    except google_exceptions.PermissionDenied as exc:
+        err = AuthError(
+            message=f"Permission denied running batch report: {exc.message if hasattr(exc, 'message') else exc}",
+            hint="Ensure your credentials have the Analytics Read & Analyze permission.",
+            recovery_command="ga4 auth status",
+        )
+        print_error(err)
+        raise typer.Exit(err.exit_code)
+    except google_exceptions.InvalidArgument as exc:
+        err = ValidationError(message=f"Invalid batch report request: {exc}")
         print_error(err)
         raise typer.Exit(err.exit_code)
     except google_exceptions.GoogleAPICallError as exc:

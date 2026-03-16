@@ -147,7 +147,7 @@ class ReportResponse(BaseModel):
     kind: str = ""
 
     @classmethod
-    def from_api_response(cls, response: object) -> ReportResponse:
+    def from_api_response(cls, response: object) -> "ReportResponse":
         """Build a ReportResponse from a raw proto-plus API response object."""
 
         def _parse_row(row: object) -> ReportRow:
@@ -181,5 +181,28 @@ class ReportResponse(BaseModel):
             maximums=[_parse_row(r) for r in getattr(response, "maximums", [])],
             minimums=[_parse_row(r) for r in getattr(response, "minimums", [])],
             row_count=getattr(response, "row_count", 0),
+            kind=str(getattr(response, "kind", "") or ""),
+        )
+
+
+class BatchReportResponse(BaseModel):
+    """Parsed response from a GA4 batchRunReports API call.
+
+    See: https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/batchRunReports
+    """
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    reports: list[ReportResponse] = []
+    kind: str = ""
+
+    @classmethod
+    def from_api_response(cls, response: object) -> "BatchReportResponse":
+        """Build a BatchReportResponse from a raw proto-plus API response object."""
+        return cls(
+            reports=[
+                ReportResponse.from_api_response(r)
+                for r in getattr(response, "reports", [])
+            ],
             kind=str(getattr(response, "kind", "") or ""),
         )
