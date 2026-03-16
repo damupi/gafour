@@ -228,6 +228,32 @@ gafour reports run \
 
 `AND` binds tighter than `OR`. Use parentheses to override.
 
+#### Batch reports
+
+Run multiple independent reports in a single API call (1–5 requests per batch):
+
+```bash
+# Create a requests file
+cat > requests.json << 'EOF'
+[
+  {
+    "metrics": ["sessions"],
+    "dimensions": ["date"],
+    "date_ranges": [{"start_date": "7daysAgo", "end_date": "yesterday"}]
+  },
+  {
+    "metrics": ["activeUsers"],
+    "dimensions": ["country"],
+    "date_ranges": [{"start_date": "30daysAgo", "end_date": "yesterday"}]
+  }
+]
+EOF
+
+gafour reports batch --property-id 123456789 --requests-file requests.json
+```
+
+Each request object supports: `metrics` (required), `date_ranges` (required), `dimensions`, `dimension_filter`, `metric_filter`, `order_bys`, `limit`, `offset`.
+
 ### Realtime
 
 ```bash

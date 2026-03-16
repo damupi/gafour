@@ -89,6 +89,67 @@ ga4 reports run \
   [--offset <n>]
 ```
 
+### `ga4 reports batch`
+
+Run multiple **independent** GA4 Data API reports in a single `batchRunReports` API call.
+Each request can have its own metrics, dimensions, date ranges, filters, and order-bys.
+The GA4 API accepts 1–5 requests per batch.
+
+```bash
+ga4 reports batch \
+  --property-id <id> \
+  --requests-file <path/to/requests.json> \
+  [--output <path>]
+```
+
+#### Request file format
+
+The file must be a JSON array of request objects. Each object supports:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `metrics` | `string[]` | yes | Metric API names (e.g. `["sessions", "activeUsers"]`) |
+| `date_ranges` | `DateRange[]` | yes | One or more `{"start_date": "...", "end_date": "..."}` objects |
+| `dimensions` | `string[]` | no | Dimension API names |
+| `dimension_filter` | FilterExpression | no | Dimension filter (same Pydantic model as `reports run`) |
+| `metric_filter` | FilterExpression | no | Metric filter |
+| `order_bys` | `string[]` | no | `"metric:asc\|desc"` expressions |
+| `limit` | `int` | no | Row limit (1–250000, default 10000) |
+| `offset` | `int` | no | Row offset for pagination (default 0) |
+
+Example:
+
+```json
+[
+  {
+    "metrics": ["sessions"],
+    "dimensions": ["date"],
+    "date_ranges": [{"start_date": "7daysAgo", "end_date": "today"}]
+  },
+  {
+    "metrics": ["activeUsers"],
+    "dimensions": ["country"],
+    "date_ranges": [{"start_date": "30daysAgo", "end_date": "today"}]
+  }
+]
+```
+
+#### Output
+
+JSON only. Aligned to `BatchRunReportsResponse`:
+
+```json
+{
+  "kind": "analyticsData#batchRunReports",
+  "reports": [
+    { /* RunReportResponse for request 0 */ },
+    { /* RunReportResponse for request 1 */ }
+  ]
+}
+```
+
+Reports appear in the same order as the input array.
+
 ### `ga4 realtime`
 ```
 ga4 realtime run --property-id <id> \
