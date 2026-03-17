@@ -293,6 +293,47 @@ gafour metadata compatibility \
 gafour key-events list <property-id>       # list all key events (formerly conversions)
 ```
 
+#### Using key events as metrics in reports
+
+Any registered key event can be used directly as a metric in `reports run` by prefixing its name with `customEvent:`. This gives you the exact count for that specific event — more precise than the aggregate `conversions` metric.
+
+**Naming patterns:**
+
+| What you want | Metric name |
+|---------------|-------------|
+| Count of a key event | `customEvent:<eventName>` |
+| Sum of the `value` parameter | `customEventValue:<eventName>` |
+| % of sessions that triggered it | `sessionKeyEventRate:<eventName>` |
+| % of users that triggered it | `userKeyEventRate:<eventName>` |
+
+**Example — purchase count and session conversion rate:**
+
+```bash
+# 1. Find your key event names
+gafour key-events list 123456789
+
+# 2. Use them as metrics
+gafour reports run \
+  --property-id 123456789 \
+  --metrics customEvent:purchase,sessionKeyEventRate:purchase,totalRevenue \
+  --dimensions date \
+  --start-date 30daysAgo --end-date yesterday \
+  --order-by date:asc
+```
+
+**Example — conversion rate by channel for a custom key event:**
+
+```bash
+gafour reports run \
+  --property-id 123456789 \
+  --metrics sessions,customEvent:book_demo,sessionKeyEventRate:book_demo \
+  --dimensions sessionDefaultChannelGroup \
+  --start-date 30daysAgo --end-date yesterday \
+  --order-by sessionKeyEventRate:book_demo:desc
+```
+
+> **Tip:** Use `conversions` when you want a total across all key events. Use `customEvent:<name>` when you care about one specific action.
+
 ### Custom Dimensions & Metrics
 
 ```bash
