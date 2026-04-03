@@ -181,3 +181,89 @@ class TestPropertiesGet:
             result = typer_runner.invoke(app, ["properties", "get", "456"])
 
         assert result.exit_code == 2
+
+
+class TestPropertiesListSubproperties:
+    def test_list_subproperties_returns_results(self, typer_runner: CliRunner) -> None:
+        mock_client = MagicMock()
+        mock_client.list_properties.return_value = [
+            _make_property("properties/999", "Subproperty A", parent="properties/456"),
+            _make_property("properties/888", "Subproperty B", parent="properties/456"),
+        ]
+        with (
+            patch("gafour.commands.properties.load_config") as mock_cfg,
+            patch("gafour.commands.properties.build_admin_client", return_value=mock_client),
+        ):
+            mock_cfg.return_value = MagicMock(
+                auth_method="service-account",
+                key_file="/fake/key.json",
+                default_property_id=None,
+                output_format="table",
+            )
+            result = typer_runner.invoke(app, ["properties", "list-subproperties", "--property-id", "456"])
+        assert result.exit_code == 0
+        assert "999" in result.output
+        assert "Subproperty A" in result.output
+
+    def test_list_subproperties_passes_correct_filter(self, typer_runner: CliRunner) -> None:
+        mock_client = MagicMock()
+        mock_client.list_properties.return_value = []
+        with (
+            patch("gafour.commands.properties.load_config") as mock_cfg,
+            patch("gafour.commands.properties.build_admin_client", return_value=mock_client),
+        ):
+            mock_cfg.return_value = MagicMock(
+                auth_method="service-account",
+                key_file="/fake/key.json",
+                default_property_id=None,
+                output_format="table",
+            )
+            typer_runner.invoke(app, ["properties", "list-subproperties", "--property-id", "456"])
+        from google.analytics.admin_v1beta.types import ListPropertiesRequest  # type: ignore[import-untyped]
+        mock_client.list_properties.assert_called_once_with(
+            request=ListPropertiesRequest(filter="parent:properties/456")
+        )
+
+    def test_list_subproperties_missing_property_id(self, typer_runner: CliRunner) -> None:
+        result = typer_runner.invoke(app, ["properties", "list-subproperties"])
+        assert result.exit_code != 0
+
+    def test_list_subproperties_json_format(self, typer_runner: CliRunner) -> None:
+        mock_client = MagicMock()
+        mock_client.list_properties.return_value = [
+            _make_property("properties/777", "JSON Subproperty", parent="properties/456"),
+        ]
+        with (
+            patch("gafour.commands.properties.load_config") as mock_cfg,
+            patch("gafour.commands.properties.build_admin_client", return_value=mock_client),
+        ):
+            mock_cfg.return_value = MagicMock(
+                auth_method="service-account",
+                key_file="/fake/key.json",
+                default_property_id=None,
+                output_format="table",
+            )
+            result = typer_runner.invoke(
+                app, ["properties", "list-subproperties", "--property-id", "456", "--format", "json"]
+            )
+        assert result.exit_code == 0
+        parsed = json.loads(result.output)
+        assert parsed[0]["name"] == "properties/777"
+        assert parsed[0]["display_name"] == "JSON Subproperty"
+
+    def test_list_subproperties_permission_denied(self, typer_runner: CliRunner) -> None:
+        from google.api_core.exceptions import PermissionDenied
+        mock_client = MagicMock()
+        mock_client.list_properties.side_effect = PermissionDenied("denied")
+        with (
+            patch("gafour.commands.properties.load_config") as mock_cfg,
+            patch("gafour.commands.properties.build_admin_client", return_value=mock_client),
+        ):
+            mock_cfg.return_value = MagicMock(
+                auth_method="service-account",
+                key_file="/fake/key.json",
+                default_property_id=None,
+                output_format="table",
+            )
+            result = typer_runner.invoke(app, ["properties", "list-subproperties", "--property-id", "456"])
+        assert result.exit_code == 2
