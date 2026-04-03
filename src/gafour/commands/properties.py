@@ -102,6 +102,88 @@ def properties_list(
         raise typer.Exit(err.exit_code)
 
 
+@properties_app.command("list-subproperties")
+def properties_list_subproperties(
+    property_id: Annotated[
+        Optional[str],
+        typer.Option(
+            "--property-id",
+            "-p",
+            help="The numeric property ID whose subproperties to list.",
+        ),
+    ] = None,
+    format: Annotated[
+        OutputFormat,
+        typer.Option("--format", "-f", help="Output format."),
+    ] = OutputFormat.JSON,
+    output: Annotated[
+        Optional[Path],
+        typer.Option("--output", "-o", help="Write output to file."),
+    ] = None,
+) -> None:
+    """List GA4 subproperties of a given property."""
+    if property_id is None:
+        err = ValidationError(
+            message="--property-id is required.",
+            hint="Provide the numeric property ID to list its subproperties.",
+            recovery_command="ga4 properties list --account-id <account-id>",
+        )
+        print_error(err)
+        raise typer.Exit(err.exit_code)
+
+    try:
+        from google.analytics.admin_v1beta.types import ListPropertiesRequest  # type: ignore[import-untyped]
+
+        config = load_config()
+        client = build_admin_client(config)
+        request = ListPropertiesRequest(filter=f"parent:properties/{property_id}")
+        pager = client.list_properties(request=request)
+        props = [
+            Property(
+                name=p.name,
+                display_name=p.display_name,
+                time_zone=p.time_zone,
+                currency_code=p.currency_code,
+                industry_category=str(p.industry_category) if p.industry_category else None,
+                create_time=str(p.create_time) if p.create_time else None,
+                update_time=str(p.update_time) if p.update_time else None,
+                parent=p.parent or None,
+            )
+            for p in pager
+        ]
+        if format == OutputFormat.JSON:
+            result = render_json_list(props)
+        else:
+            result = render(
+                [_property_to_dict(p) for p in props],
+                format,
+                ["Property ID", "Name", "Time Zone", "Currency"],
+            )
+        if output:
+            output.write_text(result, encoding="utf-8")
+        else:
+            typer.echo(result)
+    except GA4CLIError as exc:
+        print_error(exc)
+        raise typer.Exit(exc.exit_code)
+    except google_exceptions.PermissionDenied:
+        err = AuthError(
+            message=f"Permission denied listing subproperties for property '{property_id}'.",
+            hint="Ensure your credentials have the Analytics Read & Analyze permission.",
+            recovery_command="ga4 auth status",
+        )
+        print_error(err)
+        raise typer.Exit(err.exit_code)
+    except google_exceptions.InvalidArgument as exc:
+        err = ValidationError(message=f"Invalid request: {exc}")
+        print_error(err)
+        raise typer.Exit(err.exit_code)
+    except google_exceptions.GoogleAPICallError as exc:
+        err = NetworkError(message=f"API call failed: {exc}")
+        print_error(err)
+        raise typer.Exit(err.exit_code)
+
+
 @properties_app.command("get")
 def properties_get(
     property_id: Annotated[str, typer.Argument(help="The numeric property ID.")],
