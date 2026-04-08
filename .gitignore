@@ -72,6 +72,7 @@ service-account*.json
 credentials.json
 token.json
 client_secret*.json
+key.json
 
 # GA4 CLI specific
 ~/.config/ga4/
