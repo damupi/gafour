@@ -1,5 +1,36 @@
 # Changelog
 
+## [3.0.0](https://github.com/damupi/gafour/compare/v2.0.0...v3.0.0) (2026-04-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* CLI command renamed from `ga4` to `ga4x`
+
+### Features
+
+* adapt please-release ([546c250](https://github.com/damupi/gafour/commit/546c250253a49b5d282aaf8fc568c028c72cb8a6))
+* add google-analyst subagent ([61c60fb](https://github.com/damupi/gafour/commit/61c60fb2936a41ad5b7e7174848fd9a3afefa150))
+* add google-analyst subagent ([928be69](https://github.com/damupi/gafour/commit/928be69996cd7d89348ad9af4a21c073d2f830b4))
+* add list-subproperties command to support subproperty listing ([3444c19](https://github.com/damupi/gafour/commit/3444c19a1bee8cac8b840541567cfa24520c6b9d))
+* add list-subproperties command to support subproperty listing ([bb4d5a9](https://github.com/damupi/gafour/commit/bb4d5a9a986f479d115bf68a93589103b2218387))
+* add reports batch command for period-over-period comparison ([b557343](https://github.com/damupi/gafour/commit/b557343a9081bf781bd54d8306f6e191d24544c0))
+* align all command responses with GA4 API structure ([84f9717](https://github.com/damupi/gafour/commit/84f971789754fab3fe9cdfd36dd65f5dfdf95d91))
+* align all command responses with GA4 API structure ([da13a07](https://github.com/damupi/gafour/commit/da13a079a8aeadb2854ac31fd5a0aa91a69cf40b))
+* implement filter expression DSL for reports run ([66d66c0](https://github.com/damupi/gafour/commit/66d66c04ae4f2855f8721f95d0af3596b6f4ea44))
+* redesign reports batch to accept independent requests via --requests-file ([7b04cb1](https://github.com/damupi/gafour/commit/7b04cb1a473e887d8dabcc9a438e1938c48ce791))
+* rename package and command from ga4 to ga4x ([f342962](https://github.com/damupi/gafour/commit/f342962fcd718ee6b84e891e76c27f23c986c59c))
+
+
+### Documentation
+
+* add key event metrics guidance to google-analyst agent and README ([80bfec7](https://github.com/damupi/gafour/commit/80bfec7068a16d4f762526a1eddff035ff9dfd47))
+* add reports batch to ga4-reports skill ([b6764e7](https://github.com/damupi/gafour/commit/b6764e71b8c8ac43315ef4fd9bc23167831164df))
+* add skills index and per-command skill files for agent invocation ([6ddf5bd](https://github.com/damupi/gafour/commit/6ddf5bd1426b0effa4b4106e3ec1b49a2d90755b))
+* add skills index and per-command skill files for agent invocation ([f618429](https://github.com/damupi/gafour/commit/f61842966601e3b0edfe8f02f2043c32207070ef))
+* enrich google-analyst agent with key-events and live dimension lookup guidance ([3065ed3](https://github.com/damupi/gafour/commit/3065ed301d77c070d17192d790a63318a8953f4a))
+* update installation references from ga4-cli to ga4x and expand commit type guide ([bc6a9ec](https://github.com/damupi/gafour/commit/bc6a9ecbb6a63bc8daf0b425ffcc2d7574e6b3ab))
+
 ## [2.0.0](https://github.com/damupi/gafour/compare/v1.1.0...v2.0.0) (2026-04-03)
 
 
