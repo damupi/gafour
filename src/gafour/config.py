@@ -9,7 +9,9 @@ from pydantic import BaseModel, ConfigDict
 
 from gafour.errors import ConfigError
 
-CONFIG_PATH = Path.home() / ".config" / "ga4" / "config.json"
+CONFIG_PATH = Path.home() / ".config" / "gafour" / "config.json"
+
+ANALYTICS_SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"]
 
 AuthMethod = Literal["oauth2", "service-account", "token"]
 OutputFormatLiteral = Literal["table", "json", "csv"]
@@ -31,6 +33,8 @@ class Config(BaseModel):
     auth_method: AuthMethod = "service-account"
     key_file: str | None = None
     access_token: str | None = None
+    oauth2_client_secret_file: str | None = None
+    oauth2_credentials: dict | None = None
     default_property_id: str | None = None
     output_format: OutputFormatLiteral = "json"
 
@@ -60,8 +64,8 @@ def load_config() -> Config:
         except (json.JSONDecodeError, OSError) as exc:
             raise ConfigError(
                 message=f"Failed to read config file: {CONFIG_PATH}",
-                hint="The config file may be corrupted. Delete it and run 'ga4 auth login' to reconfigure.",
-                recovery_command="ga4 auth login",
+                hint="The config file may be corrupted. Delete it and run 'gafour auth login' to reconfigure.",
+                recovery_command="gafour auth login",
             ) from exc
 
     # Environment variable overrides
@@ -103,5 +107,5 @@ def save_config(config: Config) -> None:
     except OSError as exc:
         raise ConfigError(
             message=f"Failed to write config file: {CONFIG_PATH}",
-            hint="Check that you have write permissions to ~/.config/ga4/.",
+            hint="Check that you have write permissions to ~/.config/gafour/.",
         ) from exc

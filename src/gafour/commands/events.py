@@ -80,7 +80,7 @@ def events_list(
         err = AuthError(
             message=f"Permission denied listing event create rules for stream '{stream_id}'.",
             hint="Ensure your credentials have the Analytics Edit permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)

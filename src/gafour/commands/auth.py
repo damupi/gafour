@@ -1,14 +1,23 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Optional
+from pathlib import Path
+from typing import Annotated, Optional
 
 import typer
 
-from gafour.config import AuthMethod, load_config, save_config
+from gafour.auth import build_admin_client, _serialize_credentials
+from gafour.config import ANALYTICS_SCOPES, AuthMethod, load_config, save_config
 from gafour.errors import AuthError, GA4CLIError
 from gafour.output import print_error, print_success
 
+try:
+    from google_auth_oauthlib.flow import InstalledAppFlow
+except ImportError:
+    InstalledAppFlow = None  # type: ignore[assignment,misc]
+
 auth_app = typer.Typer(name="auth", help="Manage GA4 CLI authentication.")
+
+_DEFAULT_CLIENT_SECRET = str(Path.home() / ".config" / "gafour" / "client_secret.json")
 
 
 @auth_app.command("login")
@@ -18,12 +27,13 @@ def auth_login(
         typer.Option(
             "--method",
             "-m",
-            help="Authentication method: service-account or token.",
+            help="Authentication method: oauth2, service-account, or token.",
         ),
     ] = None,
 ) -> None:
     """Configure authentication credentials for the GA4 CLI.
 
+    For oauth2: opens a browser to authenticate with your Google account (recommended).
     For service-account: provide the path to your service account JSON key file.
     For token: provide a valid OAuth2 access token.
     """
@@ -34,19 +44,37 @@ def auth_login(
 
         config = Config()
 
-    effective_method = method or "service-account"
+    effective_method = method or "oauth2"
 
-    if effective_method not in ("service-account", "token"):
+    if effective_method not in ("oauth2", "service-account", "token"):
         err = AuthError(
             message=f"Unsupported auth method: '{effective_method}'.",
-            hint="Supported methods are: service-account, token.",
+            hint="Supported methods are: oauth2, service-account, token.",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
 
     config.auth_method = effective_method  # type: ignore[assignment]
 
-    if effective_method == "service-account":
+    if effective_method == "oauth2":
+        if InstalledAppFlow is None:
+            err = AuthError(
+                message="google-auth-oauthlib is not installed.",
+                hint="Run: pip install google-auth-oauthlib",
+            )
+            print_error(err)
+            raise typer.Exit(err.exit_code)
+
+        secret_file = typer.prompt(
+            "Path to OAuth2 client secret JSON",
+            default=config.oauth2_client_secret_file or _DEFAULT_CLIENT_SECRET,
+        )
+        flow = InstalledAppFlow.from_client_secrets_file(secret_file, scopes=ANALYTICS_SCOPES)
+        creds = flow.run_local_server(port=0, open_browser=True)
+        config.oauth2_client_secret_file = secret_file.strip()
+        config.oauth2_credentials = _serialize_credentials(creds)
+
+    elif effective_method == "service-account":
         key_file = typer.prompt(
             "Path to service account JSON key file",
             default=config.key_file or "",
@@ -96,6 +124,9 @@ def auth_status() -> None:
             config.access_token[:8] + "..." if config.access_token else "(not set)"
         )
         typer.echo(f"Access token:  {token_preview}")
+    elif config.auth_method == "oauth2":
+        expiry = (config.oauth2_credentials or {}).get("expiry", "(not set)")
+        typer.echo(f"Token expiry:  {expiry}")
 
     typer.echo(f"Default property: {config.default_property_id or '(not set)'}")
 
@@ -113,8 +144,8 @@ def auth_status() -> None:
     except Exception as exc:
         err = AuthError(
             message=f"Could not verify credentials: {exc}",
-            hint="Run 'ga4 auth login' to reconfigure authentication.",
-            recovery_command="ga4 auth login",
+            hint="Run 'gafour auth login' to reconfigure authentication.",
+            recovery_command="gafour auth login",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -131,6 +162,8 @@ def auth_logout() -> None:
 
     config.key_file = None
     config.access_token = None
+    config.oauth2_credentials = None
+    config.oauth2_client_secret_file = None
 
     try:
         save_config(config)

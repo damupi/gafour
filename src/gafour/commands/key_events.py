@@ -79,7 +79,7 @@ def key_events_list(
         err = AuthError(
             message=f"Permission denied listing key events for property '{property_id}'.",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)

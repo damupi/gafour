@@ -49,7 +49,7 @@ def metadata_dimensions(
             err = ValidationError(
                 message="--property-id is required.",
                 hint="Pass --property-id or set GA4_PROPERTY_ID in your environment.",
-                recovery_command="ga4 config set default_property_id <property-id>",
+                recovery_command="gafour config set default_property_id <property-id>",
             )
             print_error(err)
             raise typer.Exit(err.exit_code)
@@ -99,7 +99,7 @@ def metadata_dimensions(
         err = AuthError(
             message="Permission denied fetching metadata.",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -136,7 +136,7 @@ def metadata_metrics(
             err = ValidationError(
                 message="--property-id is required.",
                 hint="Pass --property-id or set GA4_PROPERTY_ID in your environment.",
-                recovery_command="ga4 config set default_property_id <property-id>",
+                recovery_command="gafour config set default_property_id <property-id>",
             )
             print_error(err)
             raise typer.Exit(err.exit_code)
@@ -188,7 +188,7 @@ def metadata_metrics(
         err = AuthError(
             message="Permission denied fetching metadata.",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -236,7 +236,7 @@ def metadata_compatibility(
             err = ValidationError(
                 message="--property-id is required.",
                 hint="Pass --property-id or set GA4_PROPERTY_ID in your environment.",
-                recovery_command="ga4 config set default_property_id <property-id>",
+                recovery_command="gafour config set default_property_id <property-id>",
             )
             print_error(err)
             raise typer.Exit(err.exit_code)
@@ -328,7 +328,7 @@ def metadata_compatibility(
         err = AuthError(
             message="Permission denied checking compatibility.",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
