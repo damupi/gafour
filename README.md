@@ -96,18 +96,30 @@ gafour reports run \
 
 ## Authentication
 
-`gafour` supports two authentication methods.
+`gafour` supports three authentication methods.
 
-### Option A — Service Account (recommended for scripts and CI)
+### Option A — OAuth2 (recommended for personal use)
+
+The easiest method. Opens a browser to authenticate with your Google account and stores a refresh token — no re-authentication needed.
+
+1. Go to [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials)
+2. Create an **OAuth 2.0 Client ID** of type **Desktop app**
+3. Download the JSON and save it to `~/.config/gafour/client_secret.json`
+4. Run:
+
+```bash
+gafour auth login --method oauth2
+```
+
+### Option B — Service Account (recommended for scripts and CI)
 
 1. Go to [Google Cloud Console → IAM & Admin → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
 2. Create a service account and download the JSON key file
 3. Grant the service account **Viewer** access in GA4 → Admin → Account / Property Access Management
-4. Configure the CLI:
+4. Run:
 
 ```bash
-gafour config set auth_method service-account
-gafour config set key_file /path/to/key.json
+gafour auth login --method service-account
 ```
 
 Or set the standard Application Default Credentials environment variable:
@@ -116,13 +128,12 @@ Or set the standard Application Default Credentials environment variable:
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
 ```
 
-### Option B — Access Token
+### Option C — Access Token
 
 Use a short-lived OAuth2 access token (useful in automated environments where a token is already available):
 
 ```bash
-gafour config set auth_method token
-gafour config set access_token YOUR_ACCESS_TOKEN
+gafour auth login --method token
 ```
 
 Or via environment variable:
