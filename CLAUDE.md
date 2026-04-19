@@ -15,7 +15,7 @@ A GA4 CLI tool that improves on existing options by offering:
 
 - **Google Analytics Data API v1** — run reports, fetch metadata, check dimension/metric compatibility
 - **Google Analytics Admin API v1** — account/property management, data streams, audiences, key events, custom dimensions, custom metrics
-- Auth: OAuth 2.0 or Service Account via `google-auth-library` / `google-api-python-client`
+- Auth: OAuth 2.0 (browser flow via `InstalledAppFlow`), Service Account (JSON key), or raw Bearer token
 
 ## Tech Stack
 
@@ -24,6 +24,8 @@ A GA4 CLI tool that improves on existing options by offering:
 **Runtime dependencies:**
 - `google-analytics-data` — GA4 Data API client
 - `google-analytics-admin` — GA4 Admin API client
+- `google-auth` — credential handling and token refresh
+- `google-auth-oauthlib` — OAuth2 browser flow (`InstalledAppFlow`)
 - `typer` — CLI framework
 - `rich` — terminal output (tables, JSON, color)
 - `pydantic` — input/output validation and models for all GA4 request/response shapes
@@ -119,6 +121,14 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 ### Output conventions
 - `reports run` and `realtime run` — **JSON only**, always aligned to the GA4 `RunReportResponse` / `RunRealtimeReportResponse` proto structure.
 - All admin commands (`accounts`, `properties`, `datastreams`, etc.) — support `--format table|json|csv` (table is the default).
+
+### Auth (`src/gafour/auth.py`)
+- Config lives at `~/.config/gafour/config.json`
+- Three auth methods: `oauth2` (default recommended), `service-account`, `token`
+- `ANALYTICS_SCOPES` is defined in `config.py` — import from there, never hardcode
+- `_build_oauth2_credentials(config)` — builds `Credentials` from stored dict, auto-refreshes if expired, persists new token back to config
+- `_serialize_credentials(creds)` — converts a `Credentials` object to a JSON-safe dict for storage
+- OAuth2 client secret expected at `~/.config/gafour/client_secret.json` (prompted on first login)
 
 ### Filter DSL (`src/gafour/filters.py`)
 - `parse_filter_expression(str) -> FilterExpression` — converts the `--filter` / `--metric-filter` string into a `FilterExpression` Pydantic model.

@@ -88,7 +88,7 @@ def datastreams_list(
         err = AuthError(
             message=f"Permission denied listing data streams for property '{property_id}'.",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -144,7 +144,7 @@ def datastreams_get(
         err = AuthError(
             message=f"Permission denied accessing stream '{stream_id}'.",
             hint="Ensure your credentials have access to this property.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)

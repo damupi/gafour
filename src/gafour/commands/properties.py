@@ -88,7 +88,7 @@ def properties_list(
         err = AuthError(
             message=f"Permission denied listing properties for account '{account_id}'.",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -170,7 +170,7 @@ def properties_list_subproperties(
         err = AuthError(
             message=f"Permission denied listing subproperties for property '{property_id}'.",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -226,7 +226,7 @@ def properties_get(
         err = AuthError(
             message=f"Permission denied accessing property '{property_id}'.",
             hint="Ensure your credentials have access to this property.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)

@@ -116,7 +116,7 @@ def config_init() -> None:
     """Interactive configuration wizard.
 
     Walks you through setting up authentication and default options,
-    then writes the result to ~/.config/ga4/config.json.
+    then writes the result to ~/.config/gafour/config.json.
     """
     typer.echo("GA4 CLI — configuration wizard")
     typer.echo(f"Config will be saved to: {CONFIG_PATH}\n")
@@ -208,5 +208,5 @@ def config_init() -> None:
 
     typer.echo("")
     print_success(f"Configuration saved to {CONFIG_PATH}")
-    typer.echo("\nRun 'ga4 config show' to review your settings.")
-    typer.echo("Run 'ga4 auth status' to verify connectivity.")
+    typer.echo("\nRun 'gafour config show' to review your settings.")
+    typer.echo("Run 'gafour auth status' to verify connectivity.")

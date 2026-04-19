@@ -132,7 +132,7 @@ def reports_run(
             err = ValidationError(
                 message="--property-id is required.",
                 hint="Pass --property-id or set GA4_PROPERTY_ID in your environment.",
-                recovery_command="ga4 config set default_property_id <property-id>",
+                recovery_command="gafour config set default_property_id <property-id>",
             )
             print_error(err)
             raise typer.Exit(err.exit_code)
@@ -241,7 +241,7 @@ def reports_run(
         err = AuthError(
             message=f"Permission denied running report: {exc.message if hasattr(exc, 'message') else exc}",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -307,7 +307,7 @@ def reports_batch(
             err = ValidationError(
                 message="--property-id is required.",
                 hint="Pass --property-id or set GA4_PROPERTY_ID in your environment.",
-                recovery_command="ga4 config set default_property_id <property-id>",
+                recovery_command="gafour config set default_property_id <property-id>",
             )
             print_error(err)
             raise typer.Exit(err.exit_code)
@@ -415,7 +415,7 @@ def reports_batch(
         err = AuthError(
             message=f"Permission denied running batch report: {exc.message if hasattr(exc, 'message') else exc}",
             hint="Ensure your credentials have the Analytics Read & Analyze permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)

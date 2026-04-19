@@ -73,7 +73,7 @@ def audiences_list(
         err = AuthError(
             message=f"Permission denied listing audiences for property '{property_id}'.",
             hint="Ensure your credentials have the Analytics Edit permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)
@@ -132,7 +132,7 @@ def audiences_get(
         err = AuthError(
             message=f"Permission denied accessing audience '{audience_id}'.",
             hint="Ensure your credentials have the Analytics Edit permission.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         )
         print_error(err)
         raise typer.Exit(err.exit_code)

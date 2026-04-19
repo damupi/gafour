@@ -1,7 +1,51 @@
 from __future__ import annotations
 
-from gafour.config import Config
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+
+from gafour.config import ANALYTICS_SCOPES, Config, save_config
 from gafour.errors import AuthError
+
+
+def _serialize_credentials(creds: Credentials) -> dict:
+    """Serialise a Credentials object to a JSON-safe dict for storage."""
+    return {
+        "token": creds.token,
+        "refresh_token": creds.refresh_token,
+        "token_uri": creds.token_uri,
+        "client_id": creds.client_id,
+        "client_secret": creds.client_secret,
+        "scopes": list(creds.scopes) if creds.scopes else None,
+        "expiry": creds.expiry.isoformat() if creds.expiry else None,
+    }
+
+
+def _build_oauth2_credentials(config: Config) -> Credentials:
+    """Build and (if expired) refresh OAuth2 credentials from stored config."""
+    if not config.oauth2_credentials:
+        raise AuthError(
+            message="No OAuth2 credentials stored.",
+            hint="Run 'gafour auth login --method oauth2' to authenticate.",
+            recovery_command="gafour auth login --method oauth2",
+        )
+
+    creds = Credentials(
+        token=config.oauth2_credentials.get("token"),
+        refresh_token=config.oauth2_credentials.get("refresh_token"),
+        token_uri=config.oauth2_credentials.get(
+            "token_uri", "https://oauth2.googleapis.com/token"
+        ),
+        client_id=config.oauth2_credentials.get("client_id"),
+        client_secret=config.oauth2_credentials.get("client_secret"),
+        scopes=config.oauth2_credentials.get("scopes"),
+    )
+
+    if creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+        config.oauth2_credentials = _serialize_credentials(creds)
+        save_config(config)
+
+    return creds
 
 
 def build_data_client(config: Config) -> "BetaAnalyticsDataClient":  # type: ignore[name-defined]  # noqa: F821
@@ -23,11 +67,13 @@ def build_data_client(config: Config) -> "BetaAnalyticsDataClient":  # type: ign
             return _data_client_service_account(config)
         elif config.auth_method == "token":
             return _data_client_token(config)
+        elif config.auth_method == "oauth2":
+            return _data_client_oauth2(config)
         else:
             raise AuthError(
-                message="OAuth2 authentication is not yet supported.",
-                hint="Use 'service-account' or 'token' auth method instead.",
-                recovery_command="ga4 auth login --method service-account",
+                message=f"Unknown auth method: '{config.auth_method}'.",
+                hint="Supported methods: service-account, token, oauth2.",
+                recovery_command="gafour auth login",
             )
     except AuthError:
         raise
@@ -35,7 +81,7 @@ def build_data_client(config: Config) -> "BetaAnalyticsDataClient":  # type: ign
         raise AuthError(
             message=f"Failed to build Data API client: {exc}",
             hint="Check your credentials and network connection.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         ) from exc
 
 
@@ -58,11 +104,13 @@ def build_admin_client(config: Config) -> "AnalyticsAdminServiceClient":  # type
             return _admin_client_service_account(config)
         elif config.auth_method == "token":
             return _admin_client_token(config)
+        elif config.auth_method == "oauth2":
+            return _admin_client_oauth2(config)
         else:
             raise AuthError(
-                message="OAuth2 authentication is not yet supported.",
-                hint="Use 'service-account' or 'token' auth method instead.",
-                recovery_command="ga4 auth login --method service-account",
+                message=f"Unknown auth method: '{config.auth_method}'.",
+                hint="Supported methods: service-account, token, oauth2.",
+                recovery_command="gafour auth login",
             )
     except AuthError:
         raise
@@ -70,7 +118,7 @@ def build_admin_client(config: Config) -> "AnalyticsAdminServiceClient":  # type
         raise AuthError(
             message=f"Failed to build Admin API client: {exc}",
             hint="Check your credentials and network connection.",
-            recovery_command="ga4 auth status",
+            recovery_command="gafour auth status",
         ) from exc
 
 
@@ -84,9 +132,9 @@ def _data_client_service_account(config: Config) -> "BetaAnalyticsDataClient":  
             message="No service account key file configured.",
             hint=(
                 "Set GA4_KEY_FILE or GOOGLE_APPLICATION_CREDENTIALS environment variable, "
-                "or run 'ga4 auth login --method service-account'."
+                "or run 'gafour auth login --method service-account'."
             ),
-            recovery_command="ga4 auth login --method service-account",
+            recovery_command="gafour auth login --method service-account",
         )
 
     try:
@@ -99,7 +147,7 @@ def _data_client_service_account(config: Config) -> "BetaAnalyticsDataClient":  
         raise AuthError(
             message=f"Service account key file not found: {config.key_file}",
             hint="Verify the path is correct and the file exists.",
-            recovery_command="ga4 config set key_file /path/to/service-account.json",
+            recovery_command="gafour config set key_file /path/to/service-account.json",
         ) from exc
     except Exception as exc:
         raise AuthError(
@@ -116,8 +164,8 @@ def _data_client_token(config: Config) -> "BetaAnalyticsDataClient":  # type: ig
     if not config.access_token:
         raise AuthError(
             message="No access token configured.",
-            hint="Set GA4_ACCESS_TOKEN environment variable or run 'ga4 auth login --method token'.",
-            recovery_command="ga4 auth login --method token",
+            hint="Set GA4_ACCESS_TOKEN environment variable or run 'gafour auth login --method token'.",
+            recovery_command="gafour auth login --method token",
         )
 
     quota_project = _adc_quota_project()
@@ -138,9 +186,9 @@ def _admin_client_service_account(config: Config) -> "AnalyticsAdminServiceClien
             message="No service account key file configured.",
             hint=(
                 "Set GA4_KEY_FILE or GOOGLE_APPLICATION_CREDENTIALS environment variable, "
-                "or run 'ga4 auth login --method service-account'."
+                "or run 'gafour auth login --method service-account'."
             ),
-            recovery_command="ga4 auth login --method service-account",
+            recovery_command="gafour auth login --method service-account",
         )
 
     try:
@@ -153,7 +201,7 @@ def _admin_client_service_account(config: Config) -> "AnalyticsAdminServiceClien
         raise AuthError(
             message=f"Service account key file not found: {config.key_file}",
             hint="Verify the path is correct and the file exists.",
-            recovery_command="ga4 config set key_file /path/to/service-account.json",
+            recovery_command="gafour config set key_file /path/to/service-account.json",
         ) from exc
     except Exception as exc:
         raise AuthError(
@@ -170,8 +218,8 @@ def _admin_client_token(config: Config) -> "AnalyticsAdminServiceClient":  # typ
     if not config.access_token:
         raise AuthError(
             message="No access token configured.",
-            hint="Set GA4_ACCESS_TOKEN environment variable or run 'ga4 auth login --method token'.",
-            recovery_command="ga4 auth login --method token",
+            hint="Set GA4_ACCESS_TOKEN environment variable or run 'gafour auth login --method token'.",
+            recovery_command="gafour auth login --method token",
         )
 
     quota_project = _adc_quota_project()
@@ -179,6 +227,22 @@ def _admin_client_token(config: Config) -> "AnalyticsAdminServiceClient":  # typ
         token=config.access_token,
         quota_project_id=quota_project,
     )
+    return AnalyticsAdminServiceClient(credentials=credentials)
+
+
+def _data_client_oauth2(config: Config) -> "BetaAnalyticsDataClient":  # type: ignore[name-defined]  # noqa: F821
+    """Build Data API client with OAuth2 user credentials."""
+    from google.analytics.data_v1beta import BetaAnalyticsDataClient  # type: ignore[import-untyped]
+
+    credentials = _build_oauth2_credentials(config)
+    return BetaAnalyticsDataClient(credentials=credentials)
+
+
+def _admin_client_oauth2(config: Config) -> "AnalyticsAdminServiceClient":  # type: ignore[name-defined]  # noqa: F821
+    """Build Admin API client with OAuth2 user credentials."""
+    from google.analytics.admin_v1beta import AnalyticsAdminServiceClient  # type: ignore[import-untyped]
+
+    credentials = _build_oauth2_credentials(config)
     return AnalyticsAdminServiceClient(credentials=credentials)
 
 
