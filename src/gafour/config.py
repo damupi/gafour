@@ -67,6 +67,16 @@ def load_config() -> Config:
                 hint="The config file may be corrupted. Delete it and run 'gafour auth login' to reconfigure.",
                 recovery_command="gafour auth login",
             ) from exc
+    else:
+        old_config_path = Path.home() / ".config" / "ga4" / "config.json"
+        if old_config_path.exists():
+            try:
+                raw = old_config_path.read_text(encoding="utf-8")
+                data = json.loads(raw)
+                CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+                CONFIG_PATH.write_text(raw, encoding="utf-8")
+            except (json.JSONDecodeError, OSError):
+                pass
 
     # Environment variable overrides
     if auth_method := os.environ.get("GA4_AUTH_METHOD"):

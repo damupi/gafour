@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
+import google.auth.exceptions
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-from gafour.config import ANALYTICS_SCOPES, Config, save_config
+from gafour.config import Config, save_config
 from gafour.errors import AuthError
 
 
@@ -29,6 +32,14 @@ def _build_oauth2_credentials(config: Config) -> Credentials:
             recovery_command="gafour auth login --method oauth2",
         )
 
+    expiry_raw = config.oauth2_credentials.get("expiry")
+    expiry: datetime | None = None
+    if expiry_raw:
+        parsed = datetime.fromisoformat(expiry_raw)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=UTC)
+        expiry = parsed
+
     creds = Credentials(
         token=config.oauth2_credentials.get("token"),
         refresh_token=config.oauth2_credentials.get("refresh_token"),
@@ -38,10 +49,21 @@ def _build_oauth2_credentials(config: Config) -> Credentials:
         client_id=config.oauth2_credentials.get("client_id"),
         client_secret=config.oauth2_credentials.get("client_secret"),
         scopes=config.oauth2_credentials.get("scopes"),
+        expiry=expiry,
     )
 
     if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+        try:
+            creds.refresh(Request())
+        except google.auth.exceptions.RefreshError as exc:
+            raise AuthError(
+                message=f"Failed to refresh OAuth2 token: {exc}",
+                hint=(
+                    "Your token may have been revoked. "
+                    "Re-authenticate with 'gafour auth login --method oauth2'."
+                ),
+                recovery_command="gafour auth login --method oauth2",
+            ) from exc
         config.oauth2_credentials = _serialize_credentials(creds)
         save_config(config)
 

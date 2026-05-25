@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -204,7 +203,6 @@ class TestAuthStatusOAuth2:
         with (
             patch("gafour.commands.auth.load_config", return_value=cfg),
             patch("gafour.auth.build_admin_client", return_value=mock_admin),
-            patch("gafour.commands.auth.build_admin_client", return_value=mock_admin),
         ):
             result = typer_runner.invoke(app, ["auth", "status"])
 
@@ -219,7 +217,7 @@ class TestAuthStatusOAuth2:
 
 class TestAuthLogoutOAuth2:
     def test_logout_clears_oauth2_credentials(self, typer_runner: CliRunner) -> None:
-        """auth logout clears oauth2_credentials and oauth2_client_secret_file."""
+        """auth logout clears oauth2_credentials, oauth2_client_secret_file, and resets auth_method."""
         stored = {
             "token": "ya29.abc",
             "refresh_token": "1//refresh",
@@ -245,3 +243,4 @@ class TestAuthLogoutOAuth2:
         saved: Config = mock_save.call_args[0][0]
         assert saved.oauth2_credentials is None
         assert saved.oauth2_client_secret_file is None
+        assert saved.auth_method == "service-account"

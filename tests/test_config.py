@@ -146,9 +146,14 @@ class TestConfigInit:
         assert saved.default_property_id == "999"
         assert saved.output_format == "json"
 
-    def test_init_oauth2_falls_back(self, typer_runner: CliRunner) -> None:
-        """config init with oauth2 warns and keeps existing method."""
-        existing = Config(auth_method="service-account", key_file="/existing/key.json")
+    def test_init_oauth2_sets_method(self, typer_runner: CliRunner) -> None:
+        """config init with oauth2 sets auth_method to oauth2 and preserves existing oauth2 credentials."""
+        existing = Config(
+            auth_method="service-account",
+            key_file="/existing/key.json",
+            oauth2_credentials={"token": "ya29.stored"},
+            oauth2_client_secret_file="/path/to/secret.json",
+        )
         with (
             patch("gafour.commands.config.load_config", return_value=existing),
             patch("gafour.commands.config.save_config") as mock_save,
@@ -160,8 +165,9 @@ class TestConfigInit:
             )
         assert result.exit_code == 0
         saved: Config = mock_save.call_args[0][0]
-        # Should keep existing auth method since oauth2 not implemented
-        assert saved.auth_method == "service-account"
+        assert saved.auth_method == "oauth2"
+        assert saved.oauth2_credentials == {"token": "ya29.stored"}
+        assert saved.oauth2_client_secret_file == "/path/to/secret.json"
 
     def test_init_preserves_existing_defaults(self, typer_runner: CliRunner) -> None:
         """Re-running config init with empty inputs keeps existing values."""
