@@ -5,7 +5,7 @@ from typing import Annotated, Optional
 
 import typer
 
-from gafour.auth import build_admin_client, _serialize_credentials
+from gafour.auth import _serialize_credentials
 from gafour.config import ANALYTICS_SCOPES, AuthMethod, load_config, save_config
 from gafour.errors import AuthError, GA4CLIError
 from gafour.output import print_error, print_success
@@ -44,7 +44,7 @@ def auth_login(
 
         config = Config()
 
-    effective_method = method or "oauth2"
+    effective_method = method or config.auth_method
 
     if effective_method not in ("oauth2", "service-account", "token"):
         err = AuthError(
@@ -68,10 +68,10 @@ def auth_login(
         secret_file = typer.prompt(
             "Path to OAuth2 client secret JSON",
             default=config.oauth2_client_secret_file or _DEFAULT_CLIENT_SECRET,
-        )
+        ).strip()
         flow = InstalledAppFlow.from_client_secrets_file(secret_file, scopes=ANALYTICS_SCOPES)
         creds = flow.run_local_server(port=0, open_browser=True)
-        config.oauth2_client_secret_file = secret_file.strip()
+        config.oauth2_client_secret_file = secret_file
         config.oauth2_credentials = _serialize_credentials(creds)
 
     elif effective_method == "service-account":
@@ -164,6 +164,7 @@ def auth_logout() -> None:
     config.access_token = None
     config.oauth2_credentials = None
     config.oauth2_client_secret_file = None
+    config.auth_method = "service-account"
 
     try:
         save_config(config)

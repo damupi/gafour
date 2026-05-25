@@ -131,7 +131,7 @@ def config_init() -> None:
     typer.echo("Authentication method:")
     typer.echo("  [1] service-account  (recommended for scripts/CI)")
     typer.echo("  [2] token            (direct access token)")
-    typer.echo("  [3] oauth2           (browser-based, not yet implemented)")
+    typer.echo("  [3] oauth2           (browser-based; run 'gafour auth login' after to authenticate)")
     method_map = {"1": "service-account", "2": "token", "3": "oauth2"}
     current_method_num = {"service-account": "1", "token": "2", "oauth2": "3"}.get(
         existing.auth_method, "1"
@@ -166,11 +166,8 @@ def config_init() -> None:
         key_file = None
 
     elif auth_method == "oauth2":
-        typer.echo(
-            "  OAuth2 browser flow is not yet implemented. "
-            "Use 'service-account' or 'token' for now."
-        )
-        auth_method = existing.auth_method
+        key_file = None
+        access_token = None
 
     # --- Default property ---
     raw_prop = typer.prompt(
@@ -196,6 +193,8 @@ def config_init() -> None:
         auth_method=auth_method,  # type: ignore[arg-type]
         key_file=key_file,
         access_token=access_token,
+        oauth2_credentials=existing.oauth2_credentials,
+        oauth2_client_secret_file=existing.oauth2_client_secret_file,
         default_property_id=default_property_id,
         output_format=output_format,  # type: ignore[arg-type]
     )
