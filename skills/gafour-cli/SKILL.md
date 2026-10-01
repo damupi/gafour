@@ -345,8 +345,8 @@ gafour realtime run [flags]
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--property-id`, `-p` | config / `GA4_PROPERTY_ID` env var | Numeric GA4 property ID. |
-| `--metrics`, `-m` | `activeUsers` | Metric API names. Repeatable or comma-separated. |
-| `--dimensions`, `-d` | *(none)* | Dimension API names. Repeatable or comma-separated. |
+| `--metrics`, `-m` | `activeUsers` | Metric API names. Repeat the flag for multiple metrics. |
+| `--dimensions`, `-d` | *(none)* | Dimension API names. Repeat the flag for multiple dimensions. |
 | `--limit` | `10000` | Maximum rows to return. |
 | `--output`, `-o` | *(stdout)* | Write output to a file path instead of stdout. |
 
@@ -385,7 +385,8 @@ gafour realtime run \
 # Active users and events by device category
 gafour realtime run \
   --property-id 123456789 \
-  --metrics activeUsers,eventCount \
+  --metrics activeUsers \
+  --metrics eventCount \
   --dimensions deviceCategory
 ```
 
