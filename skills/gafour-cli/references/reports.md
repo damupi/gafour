@@ -15,7 +15,7 @@ gafour reports run [flags]
 | `--end-date` | `today` | `YYYY-MM-DD` or `today` |
 | `--filter` | *(none)* | Dimension filter DSL (see below) |
 | `--metric-filter` | *(none)* | Metric filter DSL — same syntax |
-| `--order-by` | *(none)* | `name:asc` or `name:desc` — repeatable |
+| `--order-by` | *(none)* | Metric ordering as `metric:asc` or `metric:desc` – repeatable |
 | `--limit` | `10000` | Max rows (1–250000) |
 | `--offset` | `0` | Row offset for pagination |
 | `--output`, `-o` | stdout | Write output to a file path |
@@ -82,8 +82,8 @@ gafour realtime run [flags]
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--property-id`, `-p` | config / `GA4_PROPERTY_ID` | Numeric GA4 property ID |
-| `--metrics`, `-m` | `activeUsers` | Metric API names |
-| `--dimensions`, `-d` | *(none)* | Dimension API names |
+| `--metrics`, `-m` | `activeUsers` | Metric API names – repeat the flag for multiple metrics |
+| `--dimensions`, `-d` | *(none)* | Dimension API names – repeat the flag for multiple dimensions |
 | `--limit` | `10000` | Max rows |
 | `--output`, `-o` | stdout | Write output to file |
 
@@ -116,9 +116,30 @@ gafour realtime run --property-id 123456789 --metrics activeUsers --dimensions c
 # Active users and events by device
 gafour realtime run \
   --property-id 123456789 \
-  --metrics activeUsers,eventCount \
+  --metrics activeUsers \
+  --metrics eventCount \
   --dimensions deviceCategory
 ```
+
+---
+
+## Key-event reports
+
+Use `keyEvents` to count registered key events. Filter by `eventName` when the report should count one specific key event.
+
+```bash
+gafour reports run \
+  --property-id 123456789 \
+  --metrics keyEvents \
+  --dimensions date \
+  --filter 'eventName = "purchase"' \
+  --start-date 30daysAgo \
+  --end-date yesterday
+```
+
+A registered key event can expose `sessionKeyEventRate:<eventName>` and `userKeyEventRate:<eventName>`. Confirm the exact metric names with `gafour metadata metrics` first.
+
+`customEvent:<parameterName>` refers to a registered event-scoped custom metric, not the count of an event with that name.
 
 ---
 

@@ -8,6 +8,7 @@ A comprehensive command-line interface for Google Analytics 4 — run reports, i
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [AI Agent Integrations](#ai-agent-integrations)
 - [Quick Start](#quick-start)
 - [Authentication](#authentication)
 - [Configuration](#configuration)
@@ -65,6 +66,38 @@ Verify the installation:
 ```bash
 gafour --version
 ```
+
+---
+
+## AI Agent Integrations
+
+### Install the `gafour-cli` skill
+
+The portable skill includes core workflows and detailed references for reports and metadata:
+
+```bash
+npx skills@latest add damupi/gafour --skill gafour-cli
+```
+
+Source files:
+
+- [`skills/gafour-cli/SKILL.md`](skills/gafour-cli/SKILL.md) – core workflows and command guidance
+- [`skills/gafour-cli/references/reports.md`](skills/gafour-cli/references/reports.md) – historical reports, filters, ordering, and batch requests
+- [`skills/gafour-cli/references/metadata.md`](skills/gafour-cli/references/metadata.md) – dimensions, metrics, and compatibility checks
+
+### Install the Google Analyst agent
+
+The repository also provides a public GA4 reporting agent at [`agents/google-analyst.md`](agents/google-analyst.md). Agent-definition locations are not standardised across coding tools, so copy it to the directory used by your agent harness.
+
+For Claude Code, install it globally with:
+
+```bash
+mkdir -p ~/.claude/agents
+curl -fsSL https://raw.githubusercontent.com/damupi/gafour/main/agents/google-analyst.md \
+  -o ~/.claude/agents/google-analyst.md
+```
+
+Install the `gafour-cli` skill as well because the agent uses it as its CLI reference.
 
 ---
 
@@ -304,46 +337,48 @@ gafour metadata compatibility \
 gafour key-events list <property-id>       # list all key events (formerly conversions)
 ```
 
-#### Using key events as metrics in reports
+#### Using key events in reports
 
-Any registered key event can be used directly as a metric in `reports run` by prefixing its name with `customEvent:`. This gives you the exact count for that specific event — more precise than the aggregate `conversions` metric.
+Use `keyEvents` for the count of registered key events. To count one specific key event, filter the report by the `eventName` dimension.
 
-**Naming patterns:**
+Each registered key event can also expose event-specific rate metrics. Discover the exact names with `gafour metadata metrics` before querying them.
 
-| What you want | Metric name |
-|---------------|-------------|
-| Count of a key event | `customEvent:<eventName>` |
-| Sum of the `value` parameter | `customEventValue:<eventName>` |
-| % of sessions that triggered it | `sessionKeyEventRate:<eventName>` |
-| % of users that triggered it | `userKeyEventRate:<eventName>` |
+| What you want | Metric and filter |
+|---------------|-------------------|
+| Count of all key events | `keyEvents` |
+| Count of one key event | `keyEvents` with `--filter 'eventName = "<eventName>"'` |
+| % of sessions that triggered one key event | `sessionKeyEventRate:<eventName>` |
+| % of users that triggered one key event | `userKeyEventRate:<eventName>` |
 
-**Example — purchase count and session conversion rate:**
+`customEvent:<parameterName>` is reserved for a registered event-scoped custom metric. It does not count an event with that name.
+
+**Example – daily purchase key-event count:**
 
 ```bash
-# 1. Find your key event names
+# 1. Find the registered key event names
 gafour key-events list 123456789
 
-# 2. Use them as metrics
+# 2. Count one key event
 gafour reports run \
   --property-id 123456789 \
-  --metrics customEvent:purchase,sessionKeyEventRate:purchase,totalRevenue \
+  --metrics keyEvents,totalRevenue \
   --dimensions date \
-  --start-date 30daysAgo --end-date yesterday \
-  --order-by date:asc
+  --filter 'eventName = "purchase"' \
+  --start-date 30daysAgo --end-date yesterday
 ```
 
-**Example — conversion rate by channel for a custom key event:**
+**Example – session key-event rate by channel:**
 
 ```bash
 gafour reports run \
   --property-id 123456789 \
-  --metrics sessions,customEvent:book_demo,sessionKeyEventRate:book_demo \
+  --metrics sessionKeyEventRate:book_demo \
   --dimensions sessionDefaultChannelGroup \
   --start-date 30daysAgo --end-date yesterday \
   --order-by sessionKeyEventRate:book_demo:desc
 ```
 
-> **Tip:** Use `conversions` when you want a total across all key events. Use `customEvent:<name>` when you care about one specific action.
+> **Tip:** Use `keyEvents` without an `eventName` filter only when you want the total across all registered key events.
 
 ### Custom Dimensions & Metrics
 
