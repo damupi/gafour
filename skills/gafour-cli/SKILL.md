@@ -12,23 +12,33 @@ allowed-tools: Bash(gafour:*)
 gafour auth status
 ```
 
-Expected output (oauth2, the default method):
-```
-Auth method:   oauth2
-Account:       user@example.com
-Token expiry:  2026-04-17 16:46 UTC
-Default property: (not set)
-✓ Credentials are valid and API is reachable.
-```
+The output shows the configured auth method, method-specific credential details, the default property, and whether the API is reachable.
 
 - **valid** → proceed.
-- **expired token** → token is refreshed automatically on the next command; no action needed.
-- **missing credentials** → run `gafour auth login` to re-authenticate.
-- **service-account** → shows `Key file: /path/to/key.json` instead of account/expiry.
+- **expired OAuth2 token** → the next command refreshes it automatically.
+- **missing or invalid credentials** → run `gafour auth login --method <method>`.
+- Supported methods: `oauth2`, `service-account`, and `token`.
+- `oauth2` opens a browser; `service-account` and `token` prompt for credentials.
+- Remove stored credentials with `gafour auth logout`.
 
-## Global flags (all commands)
+## Configuration
 
-`--format`/`-f`: `json` (default), `table`, `csv` | `--output`/`-o`: write to file path
+```bash
+gafour config init
+gafour config show
+gafour config set <key> <value>
+gafour config unset <key>
+```
+
+Configuration is stored in `~/.config/gafour/config.json`. Valid keys are `auth_method`, `key_file`, `access_token`, `default_property_id`, and `output_format`.
+
+`config show` can expose stored credential values. Do not include its unredacted output in responses, logs, or commits.
+
+## Output flags
+
+Admin read commands support `--format`/`-f` (`json`, `table`, or `csv`) and `--output`/`-o`. Historical and realtime reports always emit JSON and support `--output`/`-o`.
+
+Use the documented read and report commands only. Resource mutation commands such as `create`, `update`, `delete`, and `clone` are not implemented yet.
 
 ---
 

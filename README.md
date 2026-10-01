@@ -8,6 +8,7 @@ A comprehensive command-line interface for Google Analytics 4 — run reports, i
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [AI Agent Skill](#ai-agent-skill)
 - [Quick Start](#quick-start)
 - [Authentication](#authentication)
 - [Configuration](#configuration)
@@ -65,6 +66,18 @@ Verify the installation:
 ```bash
 gafour --version
 ```
+
+---
+
+## AI Agent Skill
+
+This repository includes a consolidated skill for AI coding agents:
+
+- [`skills/gafour-cli/SKILL.md`](skills/gafour-cli/SKILL.md) – core workflows and command guidance
+- [`skills/gafour-cli/references/reports.md`](skills/gafour-cli/references/reports.md) – historical reports, filters, ordering, and batch requests
+- [`skills/gafour-cli/references/metadata.md`](skills/gafour-cli/references/metadata.md) – dimensions, metrics, and compatibility checks
+
+Use `skills/gafour-cli/` as the single source of truth for agent instructions.
 
 ---
 
