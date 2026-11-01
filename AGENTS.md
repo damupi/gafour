@@ -114,10 +114,18 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 
 ## 2. The Release PR Workflow
 1.  **Automation:** When a commit is merged to the main branch, `release-please` will automatically create or update a "Release PR."
-2.  **No Manual Edits:** Do **not** manually edit `CHANGELOG.md` or `package.json`/version files. The action handles these updates within the Release PR.
+2.  **No Manual Edits:** Do **not** manually edit `CHANGELOG.md` or `pyproject.toml`/version files. The action handles these updates within the Release PR. The only exception is correcting entries of already-published releases (e.g. removing duplicates); commit that as `chore:` so it does not show up in the next changelog.
 3.  **Triggering Releases:** A formal release (tagging and GitHub Release creation) only occurs when the **Release PR** itself is merged into the main branch.
 
-## 3. Agent Constraints
+## 3. Merging (Squash Only)
+`release-please` reads every commit on `main`, including merge commits and any conventional-commit lines inside a commit body. A merge commit ("Merge pull request #N …") carries the PR title in its body, so the same change gets listed twice in the changelog.
+
+* **Always squash-merge PRs** (`gh pr merge <N> --squash`). The repository only allows squash merges, uses the PR title as the commit title and leaves the body blank.
+* **The PR title is the commit message**, so it must be a valid Conventional Commit (`feat: …`, `fix: …`).
+* **Never create merge commits on `main` locally** (`git merge` + `git push`). Rebase or squash first.
+* **Do not put extra `feat:`/`fix:` lines in commit bodies**; `release-please` treats each one as a separate changelog entry.
+
+## 4. Agent Constraints
 * **Verification:** Before proposing a commit, verify that the prefix accurately reflects the impact of the code changes.
 * **Consistency:** If multiple changes are made, use the highest impact prefix (e.g., if a fix and a feature are combined, use `feat:`).
 * **Conflict Resolution:** If a Release PR has a merge conflict, notify the user immediately; do not attempt to force-push to the release branch unless specifically instructed.
