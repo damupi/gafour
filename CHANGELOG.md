@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.1.0](https://github.com/damupi/gafour/compare/v3.0.0...v3.1.0) (2026-10-01)
+
+
+### Features
+
+* add OAuth2 browser login and fix config path ([670ae1d](https://github.com/damupi/gafour/commit/670ae1df58ff4e9a3812ffc984442192a499158a))
+* add OAuth2 browser login and fix config path ([52c85c4](https://github.com/damupi/gafour/commit/52c85c44ba79246fa34c96bc88320e8521dc2c2c))
+
+
+### Bug Fixes
+
+* resolve 8 OAuth2 auth bugs ([e86ea72](https://github.com/damupi/gafour/commit/e86ea72de94429a3ffa5ac85a0762dee307b7d2a))
+* resolve 8 OAuth2 auth bugs found in code review ([822794d](https://github.com/damupi/gafour/commit/822794d7fec4380698e783ef901a44e255362ab3))
+
+
+### Documentation
+
+* consolidate agent skill documentation ([#14](https://github.com/damupi/gafour/issues/14)) ([20e8d36](https://github.com/damupi/gafour/commit/20e8d362cf0b70562a8619999e1337cf845f3d97))
+* update README auth section with OAuth2 as recommended method ([79e9428](https://github.com/damupi/gafour/commit/79e9428fa5ccedce8ad58ca99b113fc65d7179ec))
+
 ## [3.0.0](https://github.com/damupi/gafour/compare/v2.0.0...v3.0.0) (2026-04-08)
 
 
