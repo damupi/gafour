@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/damupi/gafour/compare/v3.1.0...v3.2.0) (2026-11-03)
+
+
+### Features
+
+* standardize releases and add self-upgrade ([#16](https://github.com/damupi/gafour/issues/16)) ([bc990d6](https://github.com/damupi/gafour/commit/bc990d6a63d5142dc9445d4b01dc6ab775a61e15))
+
 ## [3.1.0](https://github.com/damupi/gafour/compare/v3.0.0...v3.1.0) (2026-10-01)
 
 
