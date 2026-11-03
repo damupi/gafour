@@ -30,17 +30,21 @@ A comprehensive command-line interface for Google Analytics 4 — run reports, i
 
 ## Installation
 
-### From PyPI (recommended)
+### From a tagged GitHub release (recommended)
+
+`gafour` is distributed through GitHub Releases. Install an explicit reviewed tag with `uv`:
 
 ```bash
-pip install gafour
+uv tool install 'git+https://github.com/damupi/gafour@v3.2.0' # x-release-please-version
 ```
 
-Or with `uv`:
+Or with `pip`:
 
 ```bash
-uv tool install gafour
+python -m pip install 'git+https://github.com/damupi/gafour@v3.2.0' # x-release-please-version
 ```
+
+Do not use a bare `pip install gafour` or `uv tool install gafour`; the project does not publish to PyPI.
 
 ### From source
 
@@ -61,11 +65,22 @@ uv run gafour --help
 
 > **Note:** When installed from source with `uv sync`, prefix all commands with `uv run` (e.g. `uv run gafour accounts list`) or activate the virtual environment first with `source .venv/bin/activate`.
 
-Verify the installation:
+Verify the installation and check the latest stable release:
 
 ```bash
 gafour --version
+gafour version
+gafour version --json
 ```
+
+Upgrade a non-editable installation safely from a tagged GitHub release:
+
+```bash
+gafour upgrade
+gafour upgrade --yes
+```
+
+Interactive commands perform a cached update check at most once per day. Disable it with `GAFOUR_NO_UPDATE_CHECK=1`; it is automatically disabled in CI and non-interactive sessions.
 
 ---
 
@@ -454,7 +469,7 @@ Environment variables override values in the config file.
 
 ## Acknowledgements
 
-This project was inspired by the work of [FunnelEnvy/gafour](https://github.com/FunnelEnvy/gafour) and the [`gafour` package on PyPI](https://pypi.org/project/gafour/). Many thanks to the authors for pioneering a GA4 command-line interface.
+This project was inspired by the work of [FunnelEnvy/gafour](https://github.com/FunnelEnvy/gafour). Many thanks to its authors for pioneering a GA4 command-line interface.
 
 ---
 

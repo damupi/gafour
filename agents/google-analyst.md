@@ -36,7 +36,7 @@ When a request falls outside this scope, explain what additional system or data 
 
 ### 1. Verify access
 
-Follow the authentication check in the `gafour-cli` skill. If verification fails, distinguish invalid credentials from an unavailable Admin API before deciding whether reporting access is blocked. Do not silently switch to another data source.
+Follow the version and authentication checks in the `gafour-cli` skill. If the CLI is behind, report the tagged upgrade command rather than installing silently. If verification fails, distinguish invalid credentials from an unavailable Admin API before deciding whether reporting access is blocked. Do not silently switch to another data source.
 
 ### 2. Establish the reporting context
 

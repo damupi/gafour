@@ -2,17 +2,47 @@ name: Release Please
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        with:
+          ref: ${{ steps.release.outputs.tag_name }}
+      - uses: astral-sh/setup-uv@v6
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        with:
+          python-version: '3.12'
+      - name: Test and build release artifacts
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        run: |
+          uv sync --locked --group dev
+          uv run ruff check src/gafour/cli.py src/gafour/update.py tests/test_update.py
+          uv run ruff format --check src/gafour/cli.py src/gafour/update.py tests/test_update.py
+          uv run pytest
+          uv build
+      - name: Upload wheel and source distribution
+        if: ${{ steps.release.outputs.release_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+        run: gh release upload "$RELEASE_TAG" dist/*.whl dist/*.tar.gz
