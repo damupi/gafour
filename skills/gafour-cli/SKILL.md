@@ -21,6 +21,20 @@ The output shows the configured auth method, method-specific credential details,
 - `oauth2` opens a browser; `service-account` and `token` prompt for credentials.
 - Remove stored credentials with `gafour auth logout`.
 
+## Version and updates
+
+```bash
+gafour --version
+gafour version
+gafour version --json
+gafour upgrade
+gafour upgrade --yes
+```
+
+`version` compares the installed CLI with the latest stable GitHub release. `upgrade` installs only an explicit tagged release from `damupi/gafour`; editable development checkouts are never overwritten. Set `GAFOUR_NO_UPDATE_CHECK=1` to disable the cached interactive update notice.
+
+The reviewed CLI version for this skill is recorded in `compatibility.json`.
+
 ## Configuration
 
 ```bash

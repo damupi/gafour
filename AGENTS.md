@@ -57,6 +57,7 @@ uv run pytest              # run all tests
 uv run pytest tests/test_accounts.py  # run single test module
 uv run ruff check .        # lint
 uv run mypy .              # type check
+uv build                   # build wheel and source distribution
 ```
 
 ## Package Layout
@@ -71,7 +72,8 @@ gafour/
 │       ├── cli.py    # Typer app entry point
 │       ├── commands/ # one module per command group
 │       ├── models/   # Pydantic models
-│       └── auth.py   # credential helpers
+│       ├── auth.py   # credential helpers
+│       └── update.py # bounded GitHub release checks and safe upgrades
 ├── tests/
 ├── skills/
 ├── agents/
@@ -86,6 +88,7 @@ Package name: `gafour`, entry point: `gafour` command.
 - `skills/gafour-cli/` is the single source of truth for the distributable CLI skill.
 - `agents/google-analyst.md` is the public, user-neutral GA4 reporting agent. Do not copy private memory, local paths, credentials, or machine-specific configuration into it.
 - Keep the skill, public agent, implemented CLI, and `README.md` aligned.
+- `skills/gafour-cli/compatibility.json` records the reviewed CLI version and is synchronized by Release Please.
 - Do not duplicate CLI command reference material in the public agent or create separate per-command skills.
 - Do not restore `docs/skills.md`.
 - Validate the skill package and local Markdown links after changing agent integration documentation.
@@ -116,6 +119,8 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 1.  **Automation:** When a commit is merged to the main branch, `release-please` will automatically create or update a "Release PR."
 2.  **No Manual Edits:** Do **not** manually edit `CHANGELOG.md` or `pyproject.toml`/version files. The action handles these updates within the Release PR. The only exception is correcting entries of already-published releases (e.g. removing duplicates); commit that as `chore:` so it does not show up in the next changelog.
 3.  **Triggering Releases:** A formal release (tagging and GitHub Release creation) only occurs when the **Release PR** itself is merged into the main branch.
+4.  **Version synchronization:** Release Please updates `.release-please-manifest.json`, `pyproject.toml`, `src/gafour/__init__.py`, `skills/gafour-cli/compatibility.json`, and the `gafour` package entry in `uv.lock`.
+5.  **Distribution:** Releases are GitHub-only. Never add a bare PyPI install path. The release workflow validates the tag and uploads wheel and source artifacts to the GitHub Release.
 
 ## 3. Merging (Squash Only)
 `release-please` reads every commit on `main`, including merge commits and any conventional-commit lines inside a commit body. A merge commit ("Merge pull request #N …") carries the PR title in its body, so the same change gets listed twice in the changelog.
@@ -135,6 +140,12 @@ All commits must follow the [Conventional Commits](https://www.conventionalcommi
 ### Output conventions
 - `reports run` and `realtime run` — **JSON only**, always aligned to the GA4 `RunReportResponse` / `RunRealtimeReportResponse` proto structure.
 - All admin read commands (`accounts`, `properties`, `datastreams`, etc.) support `--format table|json|csv` (JSON is the default).
+
+### Updates (`src/gafour/update.py`)
+- `gafour version [--json]` compares the installed distribution with the latest stable public GitHub release.
+- `gafour upgrade [--yes]` installs an explicit `vX.Y.Z` tag from `damupi/gafour` for `uv` or pip installs.
+- Editable installs are never overwritten; users receive checkout guidance instead.
+- Release checks are bounded, cached once daily, disabled in CI/non-TTY sessions, and isolated from credentials, headers, askpass, `.curlrc`, and Git URL rewrites.
 
 ### Auth (`src/gafour/auth.py`)
 - Config lives at `~/.config/gafour/config.json`
